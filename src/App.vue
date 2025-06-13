@@ -404,11 +404,9 @@ input[type="range"] {
     font-size: 12px;
     text-align: right;
     z-index: 100;
-    background: rgba(0, 0, 0, 0.3);
+    /* background: rgba(0, 0, 0, 0.3); */
     padding: 8px 12px;
     border-radius: 8px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .copyright p {

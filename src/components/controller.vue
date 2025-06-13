@@ -601,12 +601,14 @@ defineExpose({
       </div>
     </div>
 
-    <div class="control-mode-toggle pointer-events-auto" @click="toggleControlMode">
+    <div class="control-mode-toggle pointer-events-auto group" @click="toggleControlMode">
       <div class="toggle-icon" :class="{ 'orbit-mode': controlType === 'orbit' }">
         <div v-if="controlType === 'orbit'" class="i-mdi-rotate-orbit text-xl"></div>
         <div v-else class="i-eos-drone text-xl"></div>
       </div>
-      <!-- <div class="mode-label">{{ controlType === 'orbit' ? 'orbit' : 'fly' }}</div> -->
+      <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-full mr-2 whitespace-nowrap bg-black/60 backdrop-blur-sm text-white text-sm px-2 py-1 rounded top-1/2 -translate-y-1/2">
+        {{ controlType === 'orbit' ? 'Orbit Mode' : 'Fly Mode' }}
+      </div>
     </div>
   </div>
 </template>
@@ -753,7 +755,7 @@ defineExpose({
 .reset-button {
   position: fixed;
   right: 20px;
-  bottom: 80px;
+  bottom: 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -788,7 +790,7 @@ defineExpose({
 .speed-slider {
   position: fixed;
   right: 20px;
-  bottom: 140px;
+  bottom: 165px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -890,38 +892,31 @@ defineExpose({
   transition: all 0.3s ease;
   z-index: 1000;
   pointer-events: auto;
+}
 
-  .toggle-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    color: #fff;
+.toggle-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: #fff;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    svg {
-      width: 24px;
-      height: 24px;
-    }
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 
-  .mode-label {
-    font-size: 12px;
-    color: #fff;
-    opacity: 0.8;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
   }
 }
 </style>
