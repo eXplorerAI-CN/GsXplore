@@ -36,17 +36,6 @@ npm install
 npm run dev
 ```
 
-### Usage
-
-```javascript
-import { GsXplore } from 'gsxplore';
-
-// Initialize scene
-const scene = new GsXplore({
-  container: '#container',
-  // Other configuration options...
-});
-```
 
 ## 📋 Roadmap
 
