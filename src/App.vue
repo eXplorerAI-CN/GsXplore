@@ -201,7 +201,6 @@ onMounted(() => {
         console.log('------------- viewer started -------------');
         refController.value.init(viewer,canvas);
         refRecorder.value.init(viewer);
-        viewer.enable_grid = true;
     });
     
 });

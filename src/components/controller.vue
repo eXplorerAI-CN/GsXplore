@@ -27,7 +27,7 @@ let lastTouchY = 0
 let hasMovedDuringInteraction = false
 let isPointerLocked = false
 const speed = ref(10)
-const speedLevel = ref(5) // 默认在中间位置
+const speedLevel = ref(6) // 默认在中间位置
 let angleUpdateInterval = null // 用于角度更新的定时器
 const isDragging = ref(false)
 
@@ -35,11 +35,11 @@ const isDragging = ref(false)
 function calculateSpeed(level) {
   const baseSpeed = 10
   const factor = 1.5
-  if (level === 5) return baseSpeed
-  if (level > 5) {
-    return baseSpeed * Math.pow(factor, level - 5)
+  if (level === 6) return baseSpeed
+  if (level > 6) {
+    return baseSpeed * Math.pow(factor, level - 6)
   }
-  return baseSpeed / Math.pow(factor, 5 - level)
+  return baseSpeed / Math.pow(factor, 6 - level)
 }
 
 // 监听 speedLevel 变化
@@ -499,9 +499,13 @@ function startDrag(event) {
 function handleDrag(event) {
   if (!isDragging.value) return
   
-  const slider = event.target.closest('.slider-container')
+  const slider = document.querySelector('.slider-container')
+  if (!slider) return
+  
   const rect = slider.getBoundingClientRect()
-  const percentage = 1 - (event.clientY - rect.top) / rect.height
+  // 限制鼠标位置在滑块范围内
+  const mouseY = Math.max(rect.top, Math.min(event.clientY, rect.bottom))
+  const percentage = 1 - (mouseY - rect.top) / rect.height
   const level = Math.max(1, Math.min(11, Math.round(percentage * 10) + 1))
   speedLevel.value = level
 }
@@ -585,14 +589,14 @@ defineExpose({
           <div class="slider-progress" :style="{ height: `${(speedLevel - 1) * 10}%` }"></div>
           <div 
             class="slider-handle"
-            :style="{ bottom: `${(speedLevel - 1) * 10}%` }"
+            :style="{ bottom: `calc(${Math.min((speedLevel - 1) * 10, 100)}% - 12px)`, transform: 'translateX(-50%)' }"
             @mousedown="startDrag"
           >
             <div class="i-mdi-run-fast text-sm"></div>
           </div>
         </div>
         <div class="slider-tip">
-          Speed Setting
+          Speed Setting <!-- {{ speedLevel }} {{ speed }} -->
         </div>
       </div>
     </div>
@@ -830,7 +834,6 @@ defineExpose({
       .slider-handle {
         position: absolute;
         left: 50%;
-        transform: translateX(-50%);
         width: 24px;
         height: 24px;
         background: rgba(255, 255, 255, 0.9);
@@ -845,13 +848,13 @@ defineExpose({
 
         &:hover {
           background: #fff;
-          transform: translateX(-50%) scale(1.1);
+          transform: translateX(-50%) scale(1.1) !important;
           color: rgba(0, 0, 0, 0.8);
         }
 
         &:active {
           cursor: grabbing;
-          transform: translateX(-50%) scale(0.95);
+          transform: translateX(-50%) scale(0.95) !important;
         }
       }
     }
