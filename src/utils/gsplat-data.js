@@ -13,7 +13,6 @@ const SH_C0 = 0.28209479177387814;
 // iterator for accessing uncompressed splat data
 class SplatIterator {
     constructor(gsplatData, p, r, s, c) {
-        console.log('gsplatData-0-0-0-0-0-')
         const x = gsplatData.getProp('x');
         const y = gsplatData.getProp('y');
         const z = gsplatData.getProp('z');
