@@ -587,18 +587,20 @@ defineExpose({
             class="slider-handle"
             :style="{ bottom: `${(speedLevel - 1) * 10}%` }"
             @mousedown="startDrag"
-          ></div>
+          >
+            <div class="i-mdi-run-fast text-sm"></div>
+          </div>
         </div>
-        <!-- <div class="slider-tip">
-          Speed: {{ Math.round(speed * 100) / 100 }}
-        </div> -->
+        <div class="slider-tip">
+          Speed Setting
+        </div>
       </div>
     </div>
 
     <div class="control-mode-toggle pointer-events-auto" @click="toggleControlMode">
       <div class="toggle-icon" :class="{ 'orbit-mode': controlType === 'orbit' }">
         <div v-if="controlType === 'orbit'" class="i-mdi-rotate-orbit text-xl"></div>
-        <div v-else class="i-ri-plane-line text-xl"></div>
+        <div v-else class="i-eos-drone text-xl"></div>
       </div>
       <!-- <div class="mode-label">{{ controlType === 'orbit' ? 'orbit' : 'fly' }}</div> -->
     </div>
@@ -836,10 +838,15 @@ defineExpose({
         cursor: grab;
         transition: all 0.2s ease;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(0, 0, 0, 0.6);
 
         &:hover {
           background: #fff;
           transform: translateX(-50%) scale(1.1);
+          color: rgba(0, 0, 0, 0.8);
         }
 
         &:active {

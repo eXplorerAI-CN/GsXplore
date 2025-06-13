@@ -415,9 +415,9 @@ defineExpose({
                         v-if="cameraList.length === 0"
                         @click="handleLoad"
                         class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                        title="Load Configuration"
+                        title="Load Route"
                     >
-                        <div class="i-ri-folder-settings-line text-lg text-gray-600"></div>
+                        <div class="i-iconoir-path-arrow text-lg text-gray-600"></div>
                     </button>
                     
                     <!-- 当列表不为空时显示保存按钮 -->
@@ -425,7 +425,7 @@ defineExpose({
                         v-if="cameraList.length > 0"
                         @click="handleSave"
                         class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                        title="Save Configuration"
+                        title="Save Route"
                     >
                         <div class="i-ri-save-line text-lg text-gray-600"></div>
                     </button>

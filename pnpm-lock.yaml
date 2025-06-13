@@ -57,6 +57,12 @@ importers:
       '@babel/preset-env':
         specifier: ^7.26.0
         version: 7.27.2(@babel/core@7.27.4)
+      '@iconify-json/eos-icons':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/iconoir':
+        specifier: ^1.2.7
+        version: 1.2.7
       '@iconify-json/mdi':
         specifier: ^1.2.3
         version: 1.2.3
@@ -734,6 +740,12 @@ packages:
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
+
+  '@iconify-json/eos-icons@1.2.2':
+    resolution: {integrity: sha512-kYfV1WfgiHDbWdG9JEbV1K77MvksRmo9KIM4VjtYFMnF8pKqTv4MoLIOdCD2lbRlhBZspxr1GKde5Z/LYqz3Qw==}
+
+  '@iconify-json/iconoir@1.2.7':
+    resolution: {integrity: sha512-UDlx2WeWHqopfKRsjOta6fn/KkOhF0MmI2AxoYfakqtMLlznkTnrtY9QVuXZzsbvk+Gyavq2L39VjhcxGbt+LA==}
 
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
@@ -2836,6 +2848,14 @@ snapshots:
 
   '@esbuild/win32-x64@0.21.5':
     optional: true
+
+  '@iconify-json/eos-icons@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/iconoir@1.2.7':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify-json/mdi@1.2.3':
     dependencies:

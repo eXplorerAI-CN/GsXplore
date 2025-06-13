@@ -17,6 +17,8 @@ export default defineConfig({
       collections: {
         ri: () => import('@iconify-json/ri/icons.json').then(i => i.default),
         mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default),
+        iconoir: () => import('@iconify-json/iconoir/icons.json').then(i => i.default),
+        eos: () => import('@iconify-json/eos-icons/icons.json').then(i => i.default),
       }
     }),
   ],
