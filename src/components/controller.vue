@@ -497,36 +497,39 @@ defineExpose({
     <div v-if="showControlTips" class="control-tips-panel pointer-events-auto">
       <div class="tips-content">
         <div class="tip-item">
-          <span class="tip-key">left mouse</span>
-          <span class="tip-action">- rotate</span>
+          <span class="tip-key">Left Mouse</span>
+          <span class="tip-action">- Rotate</span>
         </div>
         <div class="tip-item">
-          <span class="tip-key">right mouse</span>
-          <span class="tip-action">- pan</span>
+          <span class="tip-key">Right Mouse</span>
+          <span class="tip-action">- Pan</span>
         </div>
         <div class="tip-item">
-          <span class="tip-key">mouse wheel</span>
-          <span class="tip-action">- zoom</span>
+          <span class="tip-key">Mouse Wheel</span>
+          <span class="tip-action">- Zoom</span>
         </div>
         <div class="tip-item">
           <span class="tip-key">W/A/S/D</span>
-          <span class="tip-action">- move</span>
+          <span class="tip-action">- Move</span>
         </div>
         <div class="tip-item">
           <span class="tip-key">R/F</span>
-          <span class="tip-action">- move up/down</span>
+          <span class="tip-action">- Move Up/Down</span>
         </div>
         <div class="tip-item">
           <span class="tip-key">↑/←/↓/→</span>
-          <span class="tip-action">- rotate</span>
+          <span class="tip-action">- Rotate</span>
         </div>
       </div>
     </div>
 
     <!-- 重置按钮 -->
-    <div class="reset-button pointer-events-auto" @click="resetCamera">
+    <div class="reset-button pointer-events-auto group" @click="resetCamera">
       <div class="reset-icon">
         <div class="i-ri-restart-line text-xl"></div>
+      </div>
+      <div class="reset-tip opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-full mr-2 whitespace-nowrap bg-black/60 backdrop-blur-sm text-white text-sm px-2 py-1 rounded top-1/2 -translate-y-1/2">
+        Reset Camera
       </div>
     </div>
 
@@ -632,7 +635,7 @@ defineExpose({
 .control-tips-panel {
   position: fixed;
   right: 75px;
-  bottom: 75px;
+  top: 25px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -682,7 +685,7 @@ defineExpose({
 .reset-button {
   position: fixed;
   right: 20px;
-  bottom: 70px;
+  bottom: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -768,7 +771,7 @@ defineExpose({
     opacity: 1 !important;
   }
   .back {
-    background: url('@/assets/images/joy-back@3x.png') center/cover no-repeat !important;
+    /* background: url('@/assets/images/joy-back@3x.png') center/cover no-repeat !important; */
     opacity: 1 !important;
   }
   .front {

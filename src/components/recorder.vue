@@ -478,7 +478,13 @@ defineExpose({
                                         step="0.1"
                                         @click.stop
                                         @input="updateCameraDuration(index, camera.duration)"
-                                        class="w-8 px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                        :disabled="!isLooping && index === cameraList.length - 1"
+                                        :class="[
+                                            'w-8 px-2 py-1 text-xs border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent',
+                                            (!isLooping && index === cameraList.length - 1) 
+                                                ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' 
+                                                : 'border-gray-200'
+                                        ]"
                                     >
                                     <span>s</span>
                                 </div>
