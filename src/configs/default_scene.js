@@ -6,9 +6,9 @@ const defaultScene = reactive({
         mode: 'translate',
     },
     camera: {
-        position: [0, 2.5, -8],
+        position: [0, 3, 5],
         // eulerAngles: [0, 70, 0],
-        eulerAngles: [0, 180, 0],
+        eulerAngles: [-30, 0, 0],
         mode: 'fly',
         ammoDebugDrawer: {
             enabled: false,

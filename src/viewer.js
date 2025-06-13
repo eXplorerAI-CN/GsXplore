@@ -91,7 +91,7 @@ class Viewer{
         this.points = [];
         this.camera_positions = [];
         // this.screenshotScriptEntity = null;
-        this.rx = 0;
+        this.rx = 180;
         this.ry = 0;
         this.rz = 0;
         this.scale = 1;
