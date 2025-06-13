@@ -2,12 +2,12 @@ async function splatParser(arrayBuffer) {
     try {
         const data = new Uint8Array(arrayBuffer);
 
-        // 定义常量
+        // Define constants
         const numBytesPerVertex = 32;
         const numVertices = data.length / numBytesPerVertex;
         const SH_C0 = 0.28209479177387814;
 
-        // 创建数组来存储顶点属性
+        // Create arrays to store vertex attributes
         const posX = new Float32Array(numVertices);
         const posY = new Float32Array(numVertices);
         const posZ = new Float32Array(numVertices);
@@ -30,7 +30,7 @@ async function splatParser(arrayBuffer) {
         let offset = 0;
 
         for (let i = 0; i < numVertices; i++) {
-            // 读取位置
+            // Read position
             const x = dataView.getFloat32(offset, true);
             offset += 4;
             const y = dataView.getFloat32(offset, true);
@@ -41,7 +41,7 @@ async function splatParser(arrayBuffer) {
             posY[i] = -y;
             posZ[i] = z;
 
-            // 读取尺度并计算 scale_0, scale_1, scale_2
+            // Read scale and calculate scale_0, scale_1, scale_2
             const sX = dataView.getFloat32(offset, true);
             offset += 4;
             const sY = dataView.getFloat32(offset, true);
@@ -53,7 +53,7 @@ async function splatParser(arrayBuffer) {
             scaleY[i] = Math.log(sY);
             scaleZ[i] = Math.log(sZ);
 
-            // 读取颜色并计算 f_dc_0, f_dc_1, f_dc_2
+            // Read color and calculate f_dc_0, f_dc_1, f_dc_2
             const r = data[offset] / 255;
             offset += 1;
             const g = data[offset] / 255;
@@ -67,7 +67,7 @@ async function splatParser(arrayBuffer) {
             f_dc_1[i] = (g - 0.5) / SH_C0;
             f_dc_2[i] = (b - 0.5) / SH_C0;
 
-            // 计算 opacity
+            // Calculate opacity
             if (a === 1) {
                 opacity[i] = 20;
             } else if (a === 0) {
@@ -76,7 +76,7 @@ async function splatParser(arrayBuffer) {
                 opacity[i] = -Math.log((1 / a) - 1);
             }
 
-            // 读取旋转并归一化
+            // Read rotation and normalize
             let rot0 = (data[offset] - 128) / 128;
             offset += 1;
             let rot1 = (data[offset] - 128) / 128;

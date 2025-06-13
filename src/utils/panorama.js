@@ -1,8 +1,7 @@
-// import * as pc from '../../engine';
 import * as pc from 'playcanvas';
 import { fetchWithProgress } from './fetch_with_progress';
 
-// 新增函数：从 URL 创建纹理
+// New function: Create texture from URL
 async function createTextureFromUrl(app, url, onProgress) {
     const arrayBuffer = await fetchWithProgress(url, (percent, percentLabel) => {
         onProgress?.(percent, percentLabel);
@@ -19,9 +18,9 @@ async function createTextureFromUrl(app, url, onProgress) {
     return { texture, bitmap };
 }
 
-// 新增函数：创建 cubemap 纹理
+// New function: Create cubemap texture
 async function createPanoCubemap(app, url, size=1280) {
-    // 使用新的纹理创建函数
+    // Use the new texture creation function
     const { texture, bitmap } = await createTextureFromUrl(app, url, (percent, percentLabel) => {
         // console.log(`Loading progress: ${percentLabel}`);
     });
@@ -48,7 +47,7 @@ async function createPanoCubemap(app, url, size=1280) {
 
     // ret = await createPanoCubemapTiled(app, texture, ret, 512);
 
-    // 清理资源
+    // Clean up resources
     texture.destroy();
     bitmap.close();
 
@@ -59,7 +58,7 @@ async function createPanoCubemapTiled(app, texture, finalTexture, tileSize = 512
     const device = app.graphicsDevice;
     const finalSize = texture.width;
     
-    // 创建较小的临时纹理用于分块处理
+    // Create smaller temporary texture for tiled processing
     const tempTexture = new pc.Texture(device, {
         width: tileSize,
         height: tileSize,
@@ -67,7 +66,7 @@ async function createPanoCubemapTiled(app, texture, finalTexture, tileSize = 512
         cubemap: true
     });
     
-    // // 创建最终的目标纹理
+    // // Create final target texture
     // const finalTexture = new pc.Texture(device, {
     //     width: finalSize,
     //     height: finalSize,
@@ -76,11 +75,11 @@ async function createPanoCubemapTiled(app, texture, finalTexture, tileSize = 512
     // });
 
     try {
-        // 分块处理每个面
+        // Process each face in tiles
         for (let face = 0; face < 6; face++) {
             for (let y = 0; y < finalSize; y += tileSize) {
                 for (let x = 0; x < finalSize; x += tileSize) {
-                    // 处理当前块
+                    // Process current tile
                     pc.reprojectTexture(texture, tempTexture, {
                         numSamples: 16,
                         sourceProjection: pc.TEXTUREPROJECTION_EQUIRECT,
@@ -93,7 +92,7 @@ async function createPanoCubemapTiled(app, texture, finalTexture, tileSize = 512
                         }
                     });
                     
-                    // 将处理后的块复制到最终纹理
+                    // Copy processed tile to final texture
                     device.copyTexture(tempTexture, finalTexture, {
                         srcFace: face,
                         dstFace: face,
@@ -106,7 +105,7 @@ async function createPanoCubemapTiled(app, texture, finalTexture, tileSize = 512
             }
         }
     } finally {
-        // 清理临时资源
+        // Clean up temporary resources
         tempTexture.destroy();
     }
     
@@ -145,7 +144,7 @@ function changePanoSkybox(app, cubemap, options = {}) {
 
         ...options
     };
-    // 设置场景参数
+    // Set scene parameters
     // app.scene.skyboxMip = 0;
     // app.scene.skyboxIntensity = 1.0;
 
@@ -161,7 +160,7 @@ function changePanoSkybox(app, cubemap, options = {}) {
     app.scene.skyboxRotation = new pc.Quat().setFromEulerAngles(0, options.rotation, 0);
 
 
-    // 更新场景
+    // Update scene
     app.scene.updateShaders = true;
 }
 

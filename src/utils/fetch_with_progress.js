@@ -1,5 +1,4 @@
-
-// 在文件顶部添加这些定义
+// Add these definitions at the top of the file
 class AbortedPromiseError extends Error {
     constructor(reason) {
         super(reason ? `Promise aborted: ${reason}` : 'Promise aborted');
@@ -26,7 +25,7 @@ class AbortablePromise extends Promise {
     }
 }
 
-// 使用分块加载替代直接fetch
+// Use chunked loading instead of direct fetch
 const fetchWithProgress = function (path, onProgress, saveChunks = true) {
     const abortController = new AbortController()
     const signal = abortController.signal

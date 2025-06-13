@@ -32,11 +32,11 @@ body {
 
 html, body {
     overflow: hidden;
-    touch-action: none; /* 禁用所有触摸行为 */
+    touch-action: none; /* Disable all touch behaviors */
 }
 
 body {
-    -webkit-user-select: none; /* 禁止用户选择 */
+    -webkit-user-select: none; /* Prevent user selection */
     -ms-user-select: none;
     user-select: none;
 }

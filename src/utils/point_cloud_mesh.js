@@ -1,5 +1,4 @@
 import * as pc from 'playcanvas';
-// import * as pc from '../../engine';
 
 const vertexShader = /* glsl */ `
 attribute vec4 vertex_position;
@@ -43,17 +42,17 @@ void main(void) {
         }
 
         if (alpha > 0.05) {
-                // 计算到中心点的距离
+                // Calculate distance to center point
             // float distanceToCenter = length(worldPos.xyz);
             float distanceToCenter = length(vertex_position.xyz - localCenter.xyz);
 
-            // 计算环的宽度（最大半径的5%）
+            // Calculate ring width (5% of max radius)
             float ringWidth = maxRadius * 0.03;
 
-            // 计算环的半径
+            // Calculate ring radius
             float ringRadius = alpha * maxRadius;
 
-            // 判断点是否在环内
+            // Determine if point is inside the ring
             float distanceToRing = abs(distanceToCenter - ringRadius);
             if (distanceToCenter < ringRadius) {
                 gl_Position = discardVec;
@@ -65,21 +64,21 @@ void main(void) {
             // color = vec4(1.0, 1.0, 1.0, 1.0);
             // color.a = 1.0;
 
-            // 根据距离设置点的大小
+            // Set point size based on distance
             if ((distanceToCenter > ringRadius) && (distanceToCenter < ringRadius + ringWidth)){
                 // gl_PointSize = 1.5;
                 // color.a = 1.0;
                 color = vec4(1.0, 1.0, 1.0, 1.0);
 
-                // 计算点在环宽度内的相对位置（0到1之间）
+                // Calculate relative position of point within ring width (between 0 and 1)
                 float t = (distanceToCenter - ringRadius) / ringWidth;
 
-                // 使用正弦函数创建平滑的过渡效果
+                // Use sine function to create smooth transition effect
                 float sinFactor = sin(t * 3.14159);
 
-                // 将sinFactor映射到0.3到1.0之间
+                // Map sinFactor to range 0.3 to 1.0
                 color.a = 0.8 + sinFactor * 0.2;
-                // // gl_PointSize = 1.0 + sinFactor * 1.0; // 可选：根据sinFactor调整点的大小
+                // // gl_PointSize = 1.0 + sinFactor * 1.0; // Optional: adjust point size based on sinFactor
                 // gl_Position.y *= sinFactor * 0.1 + 1.0;
                 // // gl_Position.x *= sinFactor * 0.1 + 1.0;
                 // // gl_Position.z *= sinFactor * 0.1 + 1.0;
@@ -105,7 +104,7 @@ void main(void)
 `;
 
 function pointCloudMesh(device, splatData, sample = 1) {
-    // 使用新的ShaderMaterial API
+    // Use new ShaderMaterial API
     const material = new pc.ShaderMaterial({
         uniqueName: 'pointCloudShader',
         attributes: {
@@ -119,8 +118,8 @@ function pointCloudMesh(device, splatData, sample = 1) {
     material.name = 'gsplatPointCloudMaterial';
     material.blendType = pc.BLEND_NORMAL;
     // material.cull = pc.CULLFACE_NONE;
-    // material.depthTest = true; // 启用深度测试
-    // material.depthWrite = false; // 禁用深度写入
+    // material.depthTest = true; // Enable depth testing
+    // material.depthWrite = false; // Disable depth writing
     material.update();
 
     const x = splatData.getProp('x');
@@ -132,25 +131,25 @@ function pointCloudMesh(device, splatData, sample = 1) {
     const b = splatData.getProp('f_dc_2');
     const a = splatData.getProp('opacity');
 
-    // 初始化新的数组来存储采样后的数据
+    // Initialize new arrays to store sampled data
     const vertexData = new Float32Array(Math.ceil(splatData.numSplats / sample) * 4);
     const colorData = new Float32Array(Math.ceil(splatData.numSplats / sample) * 4);
 
     let sampledIndex = 0;
     for (let i = 0; i < splatData.numSplats; i += sample) {
-        // 复制顶点数据
+        // Copy vertex data
         vertexData[sampledIndex * 4 + 0] = x[i];
         vertexData[sampledIndex * 4 + 1] = y[i];
         vertexData[sampledIndex * 4 + 2] = z[i];
         vertexData[sampledIndex * 4 + 3] = 1;
 
-        // 复制颜色数据
+        // Copy color data
         colorData[sampledIndex * 4 + 0] = r[i];
         colorData[sampledIndex * 4 + 1] = g[i];
         colorData[sampledIndex * 4 + 2] = b[i];
         colorData[sampledIndex * 4 + 3] = a[i];
 
-        // 更新采样索引
+        // Update sampled index
         sampledIndex++;
     }
 

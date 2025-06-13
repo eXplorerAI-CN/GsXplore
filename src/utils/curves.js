@@ -1,72 +1,72 @@
 /**
- * 创建Catmull-Rom曲线
- * @param {Array} input_points - 输入点数组
- * @param {Array} segmentCounts - 每段的分段数
- * @param {boolean} loop - 是否创建闭合曲线
- * @returns {Array} - 曲线上的点
+ * Create Catmull-Rom curve
+ * @param {Array} input_points - Input points array
+ * @param {Array} segmentCounts - Number of segments per section
+ * @param {boolean} loop - Whether to create a closed curve
+ * @returns {Array} - Points on the curve
  */
 const catmull_rom_curve = (input_points, segmentCounts, loop = false) => {
     let points;
     let expectedSegments;
 
-    // 根据是否闭合来构建控制点数组
+    // Build control points array based on whether it's closed or not
     if (loop) {
-        // 闭合曲线：为了计算最后一段（从最后一个点回到第一个点），需要额外的控制点
+        // Closed curve: need additional control points to calculate the last segment (from last point back to first point)
         const len = input_points.length;
         points = [
-            input_points[len - 1], // 添加最后一个点作为第一个控制点
+            input_points[len - 1], // Add last point as first control point
             ...input_points,
-            input_points[0],       // 添加第一个点
-            input_points[1]        // 添加第二个点作为最后一个控制点
+            input_points[0],       // Add first point
+            input_points[1]        // Add second point as last control point
         ];
-        expectedSegments = len; // 闭合曲线有 n 段：(n-1)段原始 + 1段闭环
+        expectedSegments = len; // Closed curve has n segments: (n-1) original + 1 closing segment
     } else {
-        // 开放曲线：前后各添加一个点
+        // Open curve: add one point at each end
         points = [input_points[0], ...input_points, input_points[input_points.length - 1]];
-        expectedSegments = input_points.length - 1; // 开放曲线段数为点数减1
+        expectedSegments = input_points.length - 1; // Open curve has n-1 segments
     }
 
     const curvePoints = [];
     const n = points.length;
 
-    // 确保至少有4个点
+    // Ensure at least 4 points
     if (n < 4) {
-        console.error("需要至少4个控制点");
+        console.error("Need at least 4 control points");
         return curvePoints;
     }
 
-    // 如果没有提供 segmentCounts，为每段使用默认值 100
+    // If segmentCounts not provided, use default value 100 for each segment
     if (!segmentCounts) {
         segmentCounts = new Array(expectedSegments).fill(100);
     }
 
-    // 确保 segmentCounts 的长度正确
+    // Ensure segmentCounts length is correct
     /* if (segmentCounts.length !== expectedSegments) {
-        console.error(`segmentCounts 的长度应该等于 ${expectedSegments}`);
+        console.error(`segmentCounts length should equal ${expectedSegments}`);
         return curvePoints;
     } */
 
-    // 临时变量，避免重复创建
+    // Temporary variables to avoid repeated creation
     let t, t2, t3;
     let p0, p1, p2, p3;
     let v0x, v0y, v0z, v1x, v1y, v1z;
     let point = { x: 0, y: 0, z: 0 };
 
-    // 计算实际需要处理的段数
+    // Calculate actual number of segments to process
     const segmentsToProcess = loop ? expectedSegments : n - 3;
 
     for (let i = 0; i < segmentsToProcess; i++) {
-        // 对于闭环情况，索引需要特殊处理
+        // For closed loop case, indices need special handling
         let idx0, idx1, idx2, idx3;
         
         if (loop) {
-            // 闭环情况下的索引计算
+            // Index calculation for closed loop
             idx0 = i;
             idx1 = i + 1;
             idx2 = i + 2;
             idx3 = i + 3;
         } else {
-            // 开放曲线的索引计算
+            // Index calculation for open curve
             idx0 = i;
             idx1 = i + 1;
             idx2 = i + 2;
@@ -78,7 +78,7 @@ const catmull_rom_curve = (input_points, segmentCounts, loop = false) => {
         p2 = points[idx2];
         p3 = points[idx3];
 
-        // 预计算切线
+        // Pre-calculate tangents
         v0x = (p2.x - p0.x) * 0.5;
         v0y = (p2.y - p0.y) * 0.5;
         v0z = (p2.z - p0.z) * 0.5;
@@ -93,17 +93,17 @@ const catmull_rom_curve = (input_points, segmentCounts, loop = false) => {
             t2 = t * t;
             t3 = t * t2;
 
-            // X 坐标
+            // X coordinate
             point.x = (2 * p1.x - 2 * p2.x + v0x + v1x) * t3 +
                 (-3 * p1.x + 3 * p2.x - 2 * v0x - v1x) * t2 +
                 v0x * t + p1.x;
 
-            // Y 坐标
+            // Y coordinate
             point.y = (2 * p1.y - 2 * p2.y + v0y + v1y) * t3 +
                 (-3 * p1.y + 3 * p2.y - 2 * v0y - v1y) * t2 +
                 v0y * t + p1.y;
 
-            // Z 坐标
+            // Z coordinate
             point.z = (2 * p1.z - 2 * p2.z + v0z + v1z) * t3 +
                 (-3 * p1.z + 3 * p2.z - 2 * v0z - v1z) * t2 +
                 v0z * t + p1.z;

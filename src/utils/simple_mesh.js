@@ -1,4 +1,3 @@
-// import * as pc from '../../engine';
 import * as pc from 'playcanvas';
 import { fetchWithProgress } from './fetch_with_progress';
 
@@ -7,7 +6,7 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
     const indices = [];
     const normals = [];
 
-    // 创建顶点
+    // Create vertices
     for (let lat = 0; lat <= rings; lat++) {
         const theta = lat * Math.PI / rings;
         const sinTheta = Math.sin(theta);
@@ -31,7 +30,7 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
         }
     }
 
-    // 创建索引
+    // Create indices
     for (let lat = 0; lat < rings; lat++) {
         for (let lon = 0; lon < segments; lon++) {
             const first = (lat * (segments + 1)) + lon;
@@ -42,7 +41,7 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
         }
     }
 
-    // 创建顶点格式
+    // Create vertex format
     const vertexFormat = new pc.VertexFormat(device, [
         {
             semantic: pc.SEMANTIC_POSITION,
@@ -56,18 +55,18 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
         }
     ]);
 
-    // 创建顶点缓冲区
+    // Create vertex buffer
     const vertexBuffer = new pc.VertexBuffer(device, vertexFormat, positions.length / 3);
     const vertexData = new Float32Array(vertexBuffer.lock());
     
-    // 填充顶点位置和法线数据
+    // Fill vertex position and normal data
     for (let i = 0; i < positions.length / 3; i++) {
-        // 位置数据
+        // Position data
         vertexData[i * 6] = positions[i * 3];
         vertexData[i * 6 + 1] = positions[i * 3 + 1];
         vertexData[i * 6 + 2] = positions[i * 3 + 2];
         
-        // 法线数据
+        // Normal data
         vertexData[i * 6 + 3] = normals[i * 3];
         vertexData[i * 6 + 4] = normals[i * 3 + 1];
         vertexData[i * 6 + 5] = normals[i * 3 + 2];
@@ -75,7 +74,7 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
     
     vertexBuffer.unlock();
 
-    // 创建索引缓冲区
+    // Create index buffer
     const indexBuffer = new pc.IndexBuffer(device, pc.INDEXFORMAT_UINT16, indices.length);
     const indexData = new Uint16Array(indexBuffer.lock());
     indexData.set(indices);
@@ -83,7 +82,7 @@ function createSphereMesh(device, radius = 0.5, segments = 16, rings = 16) {
 
     const mesh = createMesh(device, vertexBuffer, indexBuffer, pc.PRIMITIVE_TRIANGLES);
 
-    // 手动更新AABB
+    // Manually update AABB
     mesh.aabb = new pc.BoundingBox();
     mesh.aabb.compute(positions);
 

@@ -1,10 +1,6 @@
-// import * as pc from '../../engine';
 import * as pc from 'playcanvas';
-////////////////////////////////////////////////////////////////////////////////
-//                             Orbit Camera Script                            //
-////////////////////////////////////////////////////////////////////////////////
 
-// 方案1：使用矩阵分解
+// Solution 1: Use matrix decomposition
 function convertToZeroZ(eulerAngles) {
     var quat = new pc.Quat();
     quat.setFromEulerAngles(eulerAngles.x, eulerAngles.y, eulerAngles.z);
@@ -14,11 +10,11 @@ function convertToZeroZ(eulerAngles) {
     
     var newEuler = new pc.Vec3();
     
-    // 处理接近垂直向上或向下的情况
+    // Handle cases close to vertical up or down
     if (Math.abs(forward.y) > 0.9999) {
-        // 接近垂直时，保持当前的yaw值
+        // When close to vertical, keep current yaw value
         newEuler.y = eulerAngles.y;
-        // 根据向上还是向下设置pitch
+        // Set pitch based on up or down
         newEuler.x = forward.y > 0 ? 90 : -90;
     } else {
         newEuler.y = Math.atan2(-forward.x, -forward.z) * pc.math.RAD_TO_DEG;
@@ -56,8 +52,7 @@ FlyCamera.attributes.add('mode', {
 });
 
 FlyCamera.prototype.initialize = function () {
-    // this.events = new pc.EventHandler();
-    // 初始化时添加事件监听
+    // Add event listeners on initialization
     this.attachEvents();
     this.on('destroy', this.detachEvents);
     this.on('enable', this.attachEvents);
@@ -71,7 +66,7 @@ FlyCamera.prototype.initialize = function () {
     this.collisionDetected = false;
     this.lastValidPosition = this.entity.getPosition().clone();
     
-    // 监听碰撞事件
+    // Listen for collision events
     this.entity.collision.on('collisionstart', this._onCollisionStart, this);
     this.entity.collision.on('collisionend', this._onCollisionEnd, this);
 
@@ -190,71 +185,8 @@ FlyCamera.prototype.onKeyUp = function(event) {
 };
 
 FlyCamera.prototype.update = function (dt) {
-    // 更新相机的方向
+    // Update camera direction
     if (this.entity.rigidbody) {
-        // if (this.rotated) {
-        //     const targetRotation = new pc.Quat();
-        //     targetRotation.setFromEulerAngles(this.ex, this.ey, 0);
-        //     this.entity.rigidbody.teleport(this.entity.getPosition(), targetRotation);
-        //     this.rotated = false;
-        // }
-
-
-
-        // // // 获取移动速度
-        // // var speed = this.app.keyboard.isPressed(pc.KEY_SHIFT) ? this.fastSpeed : this.speed;
-        // // speed *= 10;
-        // const speed = 1;
-
-        // // 如果有移动输入
-        // if (!this.moveDirection.equals(pc.Vec3.ZERO)) {
-        //     if (this.entity.rigidbody.type == 'static') {
-        //         this.entity.rigidbody.type = 'dynamic';
-        //     }
-
-        //     const movement = new pc.Vec3();
-        //     const normalizedDirection = this.moveDirection.clone();
-        //     normalizedDirection.scale(speed);
-
-        //     movement.add(this.entity.forward.clone().scale(normalizedDirection.z * -1));
-        //     movement.add(this.entity.right.clone().scale(normalizedDirection.x));
-        //     movement.add(this.entity.up.clone().scale(normalizedDirection.y));
-
-        //     // console.log('movement', movement, movement.length())
-
-        //     // 保存当前位置作为起点
-        //     const from = this.entity.getPosition().clone();
-        //     // 计算目标位置作为终点
-        //     const radius = 0.6;
-        //     const to = from.clone().add(movement.scale((movement.length() + radius)/movement.length()));
-
-        //     // 执行射线检测
-        //     const result = this.app.systems.rigidbody.raycastFirst(from, to);
-        //     // console.log('result', result, from, to)
-        //     if (result) {
-        //         console.log('检测到碰撞:', {
-        //             碰撞实体: result.entity.name,
-        //             碰撞点: result.point,
-        //             碰撞法线: result.normal
-        //         }, result);
-        //         console.log('pos', result.hitFraction * (movement.length() + radius) - radius)
-        //     }
-
-        //     // 保存当前位置作为回退点
-        //     // this.lastValidPosition = this.entity.getPosition().clone();
-
-        //     // 使用teleport移动到新位置
-        //     // const newPosition = this.lastValidPosition.clone().add(movement);
-        //     // this.entity.rigidbody.teleport(newPosition, this.entity.getRotation());
-        //     this.entity.rigidbody.linearVelocity = movement;
-        //     // this.entity.rigidbody.applyForce(movement, newPosition);
-        // } else {
-        //     if (this.entity.rigidbody.type == 'dynamic') {
-        //         this.entity.rigidbody.type = 'static';
-        //     }
-        //     // this.entity.rigidbody.teleport(this.lastValidPosition, this.entity.getRotation());
-        // }
-
         if (this.deltaEx != 0 || this.deltaEy != 0) {
             if (this.entity.rigidbody.type == 'static') {
                 this.entity.rigidbody.type = 'dynamic';
@@ -269,7 +201,6 @@ FlyCamera.prototype.update = function (dt) {
             this.deltaEy = 0;
         }
 
-        
         if (!this.moveDirection.equals(pc.Vec3.ZERO) || this.resetAfterMove) {
             if (this.entity.rigidbody.type == 'static') {
                 this.entity.rigidbody.type = 'dynamic';
@@ -286,32 +217,16 @@ FlyCamera.prototype.update = function (dt) {
 
             movement.add(this.entity.forward.clone().scale(normalizedDirection.z * -1));
             movement.add(this.entity.right.clone().scale(normalizedDirection.x));
-            movement.add(this.entity.up.clone().scale(normalizedDirection.y));
-
-            const y = this.entity.getPosition().y;
-
-            // // 保存当前位置作为起点
-            // const from = this.entity.getPosition().clone();
-            // // 计算目标位置作为终点
-            // const radius = 0.8;
-            // const to = from.clone().add(movement.scale((movement.length() + radius) / movement.length()));
-
-            // // 执行射线检测
-            // const result = this.app.systems.rigidbody.raycastFirst(from, to);
-            // // console.log('result', result, from, to)
-            // if (result) {
-            //     this.entity.rigidbody.type == 'dynamic'
-            // } else {
-            //     this.entity.rigidbody.type == 'static'
-            //     const newPosition = this.entity.getPosition().clone().add(movement);
-            //     newPosition.y = this.entity.getPosition().y;
-            //     this.entity.rigidbody.teleport(newPosition, this.entity.getRotation());
-            // }
+            movement.add(this.entity.up.clone().scale(normalizedDirection.y+0.15));
 
             if (this.lockY) {
                 movement.y = 0;
             }
             this.entity.rigidbody.linearVelocity = movement;
+
+            // const newPosition = this.entity.getPosition().clone().add(movement.scale(0.01));
+            // this.entity.rigidbody.teleport(newPosition, this.entity.getRotation());
+
             if (this.resetAfterMove) {
                 this.resetAfterMove = false;
                 this.accumMoveFactor.x = 0;
@@ -325,12 +240,12 @@ FlyCamera.prototype.update = function (dt) {
         }
 
     } else {
-        // 没有刚体时，直接设置欧拉角
-        this.entity.setLocalEulerAngles(this.ex, this.ey, 0);
+        // If there is no rigidbody, directly set Euler angles
+        this.entity.setLocalEulerAngles(this.ex, this.ey, this.ez);
         this.entity.setPosition(newPosition);
     }
 
-    // // 检查是否处于输入状态
+    // // Check if in input state
     // if (document.activeElement &&
     //     (document.activeElement.tagName === 'INPUT' ||
     //         document.activeElement.tagName === 'TEXTAREA' ||
@@ -338,7 +253,7 @@ FlyCamera.prototype.update = function (dt) {
     //     return;
     // }
 
-    // 事件触发逻辑
+    // Event trigger logic
     if (this.events) {
         const currentPosition = this.entity.getPosition();
         const currentRotation = this.entity.getRotation();
@@ -427,7 +342,7 @@ FlyCamera.prototype.onMouseDown = function (event) {
 FlyCamera.prototype.onMouseUp = function (event) {
     if (event.button === 0) {
         this.lmbDown = false;
-        // 当模式为Lock(0)时，松开左键需要解除指针锁定
+        // When mode is Lock(0), release pointer lock on left mouse button up
         if (!this.mode && pc.Mouse.isPointerLocked()) {
             this.app.mouse.disablePointerLock();
         }
@@ -437,19 +352,19 @@ FlyCamera.prototype.onMouseUp = function (event) {
 FlyCamera.prototype._onCollisionStart = function (result) {
     this.collisionDetected = true;
     
-    // 计算碰撞法线
+    // Calculate collision normal
     const normal = result.contacts[0].normal;
     
-    // 根据碰撞法线调整移动方向
+    // Adjust movement direction based on collision normal
     if (this.movement) {
-        // 将移动向量投影到碰撞平面上
+        // Project movement vector onto collision plane
         const dot = this.movement.dot(normal);
         if (dot < 0) {
             this.movement.sub(normal.scale(dot));
         }
     }
     
-    // 如果发生碰撞，回退到上一个有效位置
+    // If collision occurs, revert to last valid position
     this.entity.setPosition(this.lastValidPosition);
 };
 
@@ -458,7 +373,7 @@ FlyCamera.prototype._onCollisionEnd = function () {
 };
 
 FlyCamera.prototype.destroy = function () {
-    // 移除碰撞事件监听
+    // Remove collision event listeners
     if (this.entity.collision) {
         this.entity.collision.off('collisionstart', this._onCollisionStart, this);
         this.entity.collision.off('collisionend', this._onCollisionEnd, this);

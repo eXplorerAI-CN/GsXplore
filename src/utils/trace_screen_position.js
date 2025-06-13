@@ -2,11 +2,11 @@ import * as pc from 'playcanvas';
 
 class TraceScreenPosition extends pc.ScriptType {
     initialize() {
-        // 初始化属性
+        // Initialize properties
         this.canvasRect = this.app.graphicsDevice.canvas.getBoundingClientRect();
         this.occlusionUpdateInterval = -1;
 
-        // 添加ResizeObserver监听canvas大小变化
+        // Add ResizeObserver to monitor canvas size changes
         this.resizeObserver = new ResizeObserver(() => {
             const t = this.app.graphicsDevice.canvas.getBoundingClientRect();
             this.canvasRect.width = t.width;
@@ -14,21 +14,21 @@ class TraceScreenPosition extends pc.ScriptType {
         });
         this.resizeObserver.observe(this.app.graphicsDevice.canvas);
 
-        // 缓存picker实例
+        // Cache picker instance
         this.picker = new pc.Picker(this.app, this.app.graphicsDevice.canvas.clientWidth, this.app.graphicsDevice.canvas.clientHeight);
         this.worldLayer = this.app.scene.layers.getLayerByName('World');
         this.pickerLayers = [this.worldLayer];
 
-        // 初始化实体列表
+        // Initialize entity list
         this.trackedEntities = new Set();
 
-        // 控制检测频率
+        // Control detection frequency
         this.lastUpdateTime = 0;
         this.camera = null;
         this.syncAll = false;
     }
 
-    // 添加新的监听实体
+    // Add new entity to track
     addEntity(entity) {
         if (!this.trackedEntities.has(entity)) {
             this.trackedEntities.add(entity);
@@ -37,12 +37,12 @@ class TraceScreenPosition extends pc.ScriptType {
         return false;
     }
 
-    // 移除监听实体
+    // Remove tracked entity
     removeEntity(entity) {
         return this.trackedEntities.delete(entity);
     }
 
-    // 清空所有监听实体
+    // Clear all tracked entities
     clearEntities() {
         this.trackedEntities.clear();
     }
@@ -54,7 +54,7 @@ class TraceScreenPosition extends pc.ScriptType {
             this.camera = this.app.root.findByName('camera').camera;
         }
         
-        // 遍历所有被跟踪的实体
+        // Iterate through all tracked entities
         this.trackedEntities.forEach(entity => {
             this.camera.worldToScreen(entity.getPosition(), screenPos);
 
@@ -65,7 +65,7 @@ class TraceScreenPosition extends pc.ScriptType {
                 occluded: false
             };
 
-            // 获取或初始化该实体的上一次位置信息
+            // Get or initialize the entity's last position information
             if (!entity._lastScreenPos) {
                 entity._lastScreenPos = {
                     top: 0,
@@ -76,14 +76,14 @@ class TraceScreenPosition extends pc.ScriptType {
                 };
             }
 
-            // 检查是否在屏幕范围内
+            // Check if within screen bounds
             currentPos.visible = (currentPos.left > 0 && 
                                 currentPos.top > 0 && 
                                 currentPos.left < 1 && 
                                 currentPos.top < 1) &&
                                 currentPos.distance > 0;
 
-            // 检查位置是否发生变化
+            // Check if position has changed
             const hasChanged = (
                 (currentPos.visible === false && entity._lastScreenPos.visible === true) || 
                 (currentPos.visible === true && (
@@ -98,7 +98,7 @@ class TraceScreenPosition extends pc.ScriptType {
                 if (this.occlusionUpdateInterval > 0){ 
                     if (currentTime - this.lastUpdateTime > this.occlusionUpdateInterval) {
                             if (currentPos.visible) {
-                            // 更新picker的尺寸（如果canvas尺寸改变）
+                            // Update picker dimensions (if canvas size changed)
                             if (this.picker.width !== this.app.graphicsDevice.canvas.clientWidth ||
                                 this.picker.height !== this.app.graphicsDevice.canvas.clientHeight) {
                                 this.picker.resize(this.app.graphicsDevice.canvas.clientWidth, this.app.graphicsDevice.canvas.clientHeight);
@@ -138,13 +138,13 @@ class TraceScreenPosition extends pc.ScriptType {
         this.syncAll = false;
     }
 
-    // 设置遮挡检测间隔
+    // Set occlusion detection interval
     setOcclusionInterval(interval) {
         this.occlusionUpdateInterval = interval;
     }
 
     destroy() {
-        // 清理资源
+        // Clean up resources
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
@@ -154,16 +154,16 @@ class TraceScreenPosition extends pc.ScriptType {
     }
 }
 
-// 定义脚本属性
+// Define script attributes
 TraceScreenPosition.attributes.add('occlusionUpdateInterval', {
     type: 'number',
     default: -1,
-    title: '遮挡检测间隔(ms)',
-    description: '设置遮挡检测的时间间隔，-1表示不检测遮挡'
+    title: 'Occlusion Detection Interval (ms)',
+    description: 'Set the time interval for occlusion detection, -1 means no occlusion detection'
 });
 
-// // 注册脚本
+// // Register script
 // pc.registerScript(TraceScreenPosition, 'traceScreenPosition');
 
-// 导出脚本类，以便其他地方可以使用
+// Export script class for use elsewhere
 export { TraceScreenPosition }; 

@@ -6,12 +6,12 @@ import recorder from './components/recorder.vue';
 
 const updateMemoryUsage = () => {
     if (performance.memory) {
-        const usedJSHeapSize = performance.memory.usedJSHeapSize / 1048576; // 转换为MB
+        const usedJSHeapSize = performance.memory.usedJSHeapSize / 1048576; // Convert to MB
         document.getElementById('memoryUsage').innerText = `Memory: ${usedJSHeapSize.toFixed(2)} MB`;
     }
 }
 
-// 假设这是你要加载的模型文件路径
+// Assume this is the model file path you want to load
 const modelFilePath = '/model.ply';
 
 const screenshotCount = ref(60);
@@ -43,7 +43,7 @@ const uploadPositions = (event) => {
     reader.readAsText(file);
 };
 
-// 创建一个函数来获取 URL 参数
+// Create a function to get URL parameters
 const getUrlParams = () => {
     const params = new URLSearchParams(window.location.search);
     const result = {};
@@ -99,24 +99,24 @@ const message = reactive({
 });
 
 const toggleLod = () => {
-    message.lod = !message.lod; // 切换lod的状态
+    message.lod = !message.lod; // Toggle LOD state
 }
 
 const formattedCount = (count) => {
     return new Intl.NumberFormat('en-US', {
-        style: 'decimal', // 使用普通数字式
-        minimumFractionDigits: 0, // 最小小数位数
-        maximumFractionDigits: 0  // 最大小数位数
+        style: 'decimal', // Use regular decimal format
+        minimumFractionDigits: 0, // Minimum decimal places
+        maximumFractionDigits: 0  // Maximum decimal places
     }).format(count);
 };
 
-const sliderValue = ref(0.5); // 默认值为0.5
+const sliderValue = ref(0.5); // Default value is 0.5
 
-// 格式化显示的值，保留两位小数
+// Format the displayed value, keep two decimal places
 const formattedValue = computed(() => {
-    // 确保使用数字方法之前将值转换为数值类型
+    // Ensure the value is converted to numeric type before using number methods
     const numValue = Number(sliderValue.value);
-    return numValue.toFixed(2); // 现在可以安全地使用 toFixed
+    return numValue.toFixed(2); // Now it's safe to use toFixed
 });
 
 const updateValue = () => {
@@ -301,7 +301,7 @@ canvas {
     background-color: rgba(0, 0, 0, 0.5);
 }
 input[type="range"] {
-  width: 300px; /* 控制滑块的宽度 */
+  width: 300px; /* Control the width of the slider */
 }
 
 .menu-container {

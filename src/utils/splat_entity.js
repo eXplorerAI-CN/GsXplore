@@ -1,5 +1,4 @@
 import { pointCloudMesh } from './point_cloud_mesh.js';    
-// import { Entity, createScript } from '../../engine';
 import { Entity, createScript } from 'playcanvas';
 
 const splatVertexShader = /* glsl */`
@@ -88,7 +87,7 @@ void main(void) {
 
 function genPointCloudScript(app) {
     
-    // 检查是否已经存在 ztx_pointCloud 脚本
+    // Check if ztx_pointCloud script already exists
     const existingScript = app.scripts.get('ztx_pointCloud');
     if (existingScript) {
         return existingScript;
@@ -99,9 +98,9 @@ function genPointCloudScript(app) {
     };
 
     PointCloud.prototype.createPointCloud = function (sample = 1) {
-        // 检查是否已经存在render组件以及是否包含点云mesh
+        // Check if render component exists and contains point cloud mesh
         if (this.entity.render && this.entity.render.meshInstances) {
-            // 检查是否已经存在点云mesh（通过检查材质特征）
+            // Check if point cloud mesh exists (by checking material features)
             const hasPointCloudMesh = this.entity.render.meshInstances.some(meshInstance => {
                 return meshInstance.material && 
                     (meshInstance.material.name === 'gsplatPointCloudMaterial' || 
@@ -171,7 +170,7 @@ function genPointCloudScript(app) {
             gsplat.enabled = true;
             const initialExpansionFactor = 0.001;
             const finalExpansionFactor = 0.4;
-            t_factor = (Math.pow(1 + grad, 10) - 1) / (Math.pow(2, 10) - 1) * (finalExpansionFactor - initialExpansionFactor) // 使用指数函数调整变化率
+            t_factor = (Math.pow(1 + grad, 10) - 1) / (Math.pow(2, 10) - 1) * (finalExpansionFactor - initialExpansionFactor) // Use exponential function to adjust rate of change
             if (grad < 0.5) {
                 cloudMesh.enabled = true;
                 cloudMaterial.setParameter('alpha', 0.9 - grad);
@@ -218,37 +217,37 @@ function genPointCloudScript(app) {
 
     PointCloud.prototype.clearPointCloud = function () {
         if (!this.entity.render || !this.entity.render.meshInstances) {
-            console.log('没有找到render组件或meshInstances，跳过清除');
+            console.log('No render component or meshInstances found, skipping cleanup');
             return;
         }
 
-        // 找到并移除点云相关的mesh实例
+        // Find and remove point cloud related mesh instances
         const remainingMeshInstances = this.entity.render.meshInstances.filter(meshInstance => {
             const isPointCloudMesh = meshInstance.material && 
                                    (meshInstance.material.name === 'gsplatPointCloudMaterial' || 
                                     meshInstance.material.uniqueName === 'pointCloudShader');
             
             if (isPointCloudMesh) {
-                // 释放mesh和材质资源
+                // Release mesh and material resources
                 if (meshInstance.mesh) {
                     meshInstance.mesh.destroy();
                 }
                 if (meshInstance.material) {
                     meshInstance.material.destroy();
                 }
-                console.log('清除点云mesh实例');
-                return false; // 不保留此mesh实例
+                console.log('Cleared point cloud mesh instances');
+                return false; // Do not keep this mesh instance
             }
-            return true; // 保留非点云mesh实例
+            return true; // Keep non-point cloud mesh instances
         });
 
-        // 更新render组件的mesh实例
+        // Update render component's mesh instances
         this.entity.render.meshInstances = remainingMeshInstances;
 
-        // 如果没有剩余的mesh实例，移除整个render组件
+        // If no remaining mesh instances, remove the entire render component
         if (remainingMeshInstances.length === 0) {
             this.entity.removeComponent('render');
-            console.log('清除render组件（没有剩余mesh实例）');
+            console.log('Cleared render component (no remaining mesh instances)');
         }
     }
 
@@ -279,7 +278,7 @@ function calcLocalCenterAndPCA(splatData) {
     let validSamples = 0;
     const points = [];
 
-    // 计算中心点
+    // Calculate center point
     for (let i = 0; i < numPoints; i += step) {
         if (!isNaN(x[i]) && !isNaN(y[i]) && !isNaN(z[i])) {
             sumPosition.x += x[i];
@@ -296,16 +295,16 @@ function calcLocalCenterAndPCA(splatData) {
         sumPosition.z / validSamples
     );
 
-    // 执行PCA
+    // Execute PCA
     const covarianceMatrix = calculateCovarianceMatrix(points, [localCenter.x, localCenter.y, localCenter.z]);
     console.log('covarianceMatrix', covarianceMatrix);
     let eigenVectors = calculateEigenVectors(covarianceMatrix);
     console.log('eigenVectors', eigenVectors);
 
-    // 确保主轴按照最大方差到最小方差的顺序排列
+    // Ensure principal axes are ordered from largest variance to smallest variance
     // eigenVectors.sort((a, b) => b.length() - a.length());
 
-    // // 调整主轴方向
+    // // Adjust principal axes direction
     // const up = new pc.Vec3(0, 1, 0);
     // if (eigenVectors[1].dot(up) < 0) {
     //     eigenVectors[1].scale(-1);
@@ -315,7 +314,7 @@ function calcLocalCenterAndPCA(splatData) {
     // console.log('eigenVectors[2]', eigenVectors[2]);
     // // eigenVectors[0].cross(eigenVectors[1])
 
-    // // 确保右手坐标系
+    // // Ensure right-handed coordinate system
     // eigenVectors[2] = eigenVectors[0].cross(eigenVectors[1]).normalize();
 
     return {
@@ -344,8 +343,8 @@ function calculateCovarianceMatrix(points, center) {
 }
 
 function calculateEigenVectors(matrix) {
-    // 注意：这里使用了简化的方法来计算特征向量
-    // 对于更精确的结果，您可能需要使用专门的数学库
+    // Note: Here we use a simplified method to calculate eigenvectors
+    // For more accurate results, you might want to use a specialized math library
     const [a, b, c] = matrix[0];
     const [d, e, f] = matrix[1];
     const [g, h, i] = matrix[2];
@@ -392,7 +391,7 @@ function genSplatEntity(resource) {
     // pointCloudScript.showCloud();
 
 
-    // // 创建旋转矩阵
+    // // Create rotation matrix
     // const rotationMatrix = new pc.Mat4();
     // rotationMatrix.set([
     //     principalAxes[0].x, principalAxes[1].x, principalAxes[2].x, 0,
@@ -401,11 +400,11 @@ function genSplatEntity(resource) {
     //     0, 0, 0, 1
     // ]);
 
-    // // 从旋转矩阵创建四元数
+    // // Create quaternion from rotation matrix
     // const quaternion = new pc.Quat();
     // quaternion.setFromMat4(rotationMatrix);
 
-    // // 应用旋转到实体
+    // // Apply rotation to entity
     // entity.setRotation(quaternion);
 
     // component.customAabb.setFromTransformedAabb(component.customAabb, entity.getWorldTransform());

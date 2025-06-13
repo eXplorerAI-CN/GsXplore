@@ -1,11 +1,10 @@
-// import * as pc from '../../engine';
 import * as pc from 'playcanvas';
 
 export class GridHelper {
     constructor(app, options = {}) {
         this.app = app;
 
-        // 默认配置
+        // Default configuration
         this.options = {
             gridHalfSize: options.gridHalfSize || 5,
             gridColor: options.gridColor || new pc.Color(1, 1, 1, 0.3),
@@ -20,14 +19,14 @@ export class GridHelper {
     initGridLines() {
         const { gridHalfSize, arrowSize } = this.options;
 
-        // 初始化线条数组
+        // Initialize line array
         this.gridLines = [];
         this.xAxisLine = [];
         this.yAxisLine = [];
         this.xAxisArrow = [];
         this.yAxisArrow = [];
 
-        // 创建网格线
+        // Create grid lines
         for (let i = 0; i < gridHalfSize * 2 + 1; i++) {
             if (i !== gridHalfSize) {
                 this.gridLines.push(
@@ -41,7 +40,7 @@ export class GridHelper {
             }
         }
 
-        // 创建坐标轴线
+        // Create axis lines
         this.xAxisLine.push(
             new pc.Vec3(-gridHalfSize, 0, 0),
             new pc.Vec3(gridHalfSize, 0, 0)
@@ -51,7 +50,7 @@ export class GridHelper {
             new pc.Vec3(0, 0, gridHalfSize)
         );
 
-        // 创建箭头
+        // Create arrows
         this.xAxisArrow.push(
             new pc.Vec3(gridHalfSize, 0, 0),
             new pc.Vec3(gridHalfSize - arrowSize, 0, arrowSize),

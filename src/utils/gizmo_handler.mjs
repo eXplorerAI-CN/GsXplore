@@ -1,4 +1,3 @@
-// import * as pc from '../../engine'
 import * as pc from 'playcanvas';
 class GizmoHandler {
     /**

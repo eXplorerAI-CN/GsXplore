@@ -8,7 +8,7 @@ class Text {
         this.text = 'Hello World!';
         this.fontsize = 70;
 
-        // 创建画布进行文本渲染
+        // Create canvas for text rendering
         this.canvas = document.createElement('canvas');
         this.canvas.height = 128;
         this.canvas.width = 512;
@@ -26,7 +26,7 @@ class Text {
 
         this.updateText();
 
-        // 假设实体已经有model组件
+        // Assume entity already has model component
         if (this.entity.model) {
             this.entity.model.material.emissiveMap = this.texture;
             this.entity.model.material.opacityMap = this.texture;
@@ -40,11 +40,11 @@ class Text {
         const w = ctx.canvas.width;
         const h = ctx.canvas.height;
 
-        // 清除上下文为透明
+        // Clear context to transparent
         ctx.fillStyle = "#00000000";
         ctx.fillRect(0, 0, w, h);
 
-        // 写入白色文本
+        // Write white text
         ctx.fillStyle = 'white';
         ctx.save();
         ctx.font = 'bold ' + String(this.fontsize) + 'px Verdana';
@@ -54,7 +54,7 @@ class Text {
         ctx.fillText(this.text, w / 2, h / 2);
         ctx.restore();
 
-        // 将画布内容复制到纹理
+        // Copy canvas content to texture
         this.texture.upload();
     }
 

@@ -40,7 +40,7 @@ const defaultScene = reactive({
             // hall: {
             //     type: 'gsplat',
             //     url: '/hall_low_quality.ply',
-            //     // url: '乌兰哈达六号火山.ply',
+            //     // url: 'Wulanhada Volcano No.6.ply',
             //     position: [0, 2, 0],
             //     rotation: [180, 0, 0],
             //     scale: [3, 3, 3],
@@ -377,13 +377,13 @@ const defaultScene = reactive({
             // building1: {
             //     projectionMapping: true,
             //     points: [
-            //         // 建筑物的平面轮廓点 (顺时针或逆时针排列)
+            //         // Building footprint points (arranged clockwise or counterclockwise)
             //         { x: -1, y: 0, z: -1 },
             //         { x: 1, y: 0, z: -1 },
             //         { x: 1, y: 0, z: 1 },
             //         { x: -1, y: 0, z: 1 },
             //     ],
-            //     height: 2, // 建筑物高度
+            //     height: 2, // Building height
             //     position: [0, 0, 0],
             //     rotation: [0, 0, 0],
             //     scale: [1, 1, 1],
@@ -631,13 +631,13 @@ const defaultScene_2 = reactive({
             // building1: {
             //     projectionMapping: true,
             //     points: [
-            //         // 建筑物的平面轮廓点 (顺时针或逆时针排列)
+            //         // Building footprint points (arranged clockwise or counterclockwise)
             //         { x: -1, y: 0, z: -1 },
             //         { x: 1, y: 0, z: -1 },
             //         { x: 1, y: 0, z: 1 },
             //         { x: -1, y: 0, z: 1 },
             //     ],
-            //     height: 2, // 建筑物高度
+            //     height: 2, // Building height
             //     position: [0, 0, 0],
             //     rotation: [0, 0, 0],
             //     scale: [1, 1, 1],

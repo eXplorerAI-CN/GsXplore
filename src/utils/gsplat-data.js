@@ -1,16 +1,5 @@
-// import { Color } from '../../core/math/color.js';
-// import { Mat4 } from '../../core/math/mat4.js';
-// import { Quat } from '../../core/math/quat.js';
-// import { Vec3 } from '../../core/math/vec3.js';
-// import { BoundingBox } from '../../core/shape/bounding-box.js';
 import { Color, Mat4, Quat, Vec3, BoundingBox } from 'playcanvas';
 import LargeMap from 'large-map';
-
-/**
- * @import { PlyElement } from '../../framework/parsers/ply.js'
- * @import { Scene } from '../scene.js'
- * @import { Vec4 } from '../../core/math/vec4.js'
- */
 
 const mat4 = new Mat4();
 const quat = new Quat();

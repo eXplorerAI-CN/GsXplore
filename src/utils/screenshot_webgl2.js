@@ -1,7 +1,6 @@
-// import * as pc from '../../engine';
 import * as pc from 'playcanvas';
-// 添加视频录制相关的导入
-// import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
+// Add video recording related imports
+import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const screenshot_api_host = 'https://192.168.1.99';
 
@@ -10,10 +9,10 @@ class Screenshot {
         this.app = app;
         this.device = this.app.graphicsDevice;
         this.camera = camera;
-        // 确保尺寸为偶数（H.264要求）
+        // Ensure dimensions are even (H.264 requirement)
         this.screenshotWidth = screenshotWidth % 2 === 0 ? screenshotWidth : screenshotWidth - 1;
         this.screenshotHeight = screenshotHeight % 2 === 0 ? screenshotHeight : screenshotHeight - 1;
-        // 视频录制相关属性
+        // Video recording related properties
         this.isRecording = false;
         this.videoFrames = [];
         this.frameRate = 30;
@@ -22,7 +21,7 @@ class Screenshot {
     }
 
     init() {
-        console.log(`截图/录制尺寸: ${this.screenshotWidth} x ${this.screenshotHeight}`);
+        console.log(`Screenshot/recording dimensions: ${this.screenshotWidth} x ${this.screenshotHeight}`);
         
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d');
@@ -68,22 +67,22 @@ class Screenshot {
     }
 
     copyUIntToImageData = (data, imageData, width, height) => {
-        const bytesPerRow = width * 4;  // 每行数据的字节数（每个像素RGBA占4个字节）
+        const bytesPerRow = width * 4;  // Bytes per row (4 bytes per pixel for RGBA)
 
         for (let y = 0; y < height; y++) {
-            let inputRowStart = y * bytesPerRow;  // 当前行的起始索引（未翻转）
-            let outputRowStart = (height - 1 - y) * bytesPerRow;  // 翻转后的行的起始索引
+            let inputRowStart = y * bytesPerRow;  // Current row start index (unflipped)
+            let outputRowStart = (height - 1 - y) * bytesPerRow;  // Flipped row start index
 
             for (let x = 0; x < bytesPerRow; x += 4) {
-                // 计算在原始数据和目标ImageData中的实际索引位置
+                // Calculate actual index positions in source and target ImageData
                 let inputIndex = inputRowStart + x;
                 let outputIndex = outputRowStart + x;
 
-                // 将像素数据从输入复制到输出，实现Y轴翻转
+                // Copy pixel data from input to output, implementing Y-axis flip
                 imageData.data[outputIndex] = data[inputIndex]; // Red
                 imageData.data[outputIndex + 1] = data[inputIndex + 1]; // Green
                 imageData.data[outputIndex + 2] = data[inputIndex + 2]; // Blue
-                imageData.data[outputIndex + 3] = 255; // Alpha固定为不透明
+                imageData.data[outputIndex + 3] = 255; // Alpha fixed to opaque
             }
         }
     };
@@ -175,25 +174,25 @@ class Screenshot {
                 body: JSON.stringify({ image, filename })
             })
                 .then(response => response.json())
-                .then(data => console.log('保存成功:', data))
-                .catch(error => console.error('错误:', error));
+                .then(data => console.log('Saved successfully:', data))
+                .catch(error => console.error('Error:', error));
         }
         this.camera.camera.renderTarget = cameraRenderTarget;
     }
 
     calculateOptimalBitrate(width, height, quality = 'high') {
         const pixels = width * height;
-        const megapixels = pixels / 1000000; // 转换为百万像素
+        const megapixels = pixels / 1000000; // Convert to megapixels
 
-        // 基于像素数的幂函数拟合
+        // Power function fitting based on pixel count
         const baseBitrate = 1200000 * Math.pow(megapixels, 0.75) * 2;
 
-        // 质量系数
+        // Quality multipliers
         const qualityMultipliers = {
-            'low': 0.6,      // 节省带宽
-            'medium': 1.0,   // 标准质量
-            'high': 1.6,     // 高质量
-            'ultra': 2.5     // 极高质量
+            'low': 0.6,      // Save bandwidth
+            'medium': 1.0,   // Standard quality
+            'high': 1.6,     // High quality
+            'ultra': 2.5     // Ultra high quality
         };
 
         return Math.round(baseBitrate * qualityMultipliers[quality]);
@@ -206,15 +205,15 @@ class Screenshot {
         if (!bitrate) {
             bitrate = this.calculateOptimalBitrate(this.screenshotWidth, this.screenshotHeight, 'ultra');
         }
-        // 检查浏览器是否支持VideoEncoder API
+        // Check if browser supports VideoEncoder API
         if (typeof VideoEncoder === 'undefined') {
-            console.error('当前浏览器不支持VideoEncoder API，视频录制功能不可用。请使用Chrome 94+版本。');
+            console.error('Current browser does not support VideoEncoder API, video recording is unavailable. Please use Chrome 94+ version.');
             return false;
         }
 
-        // 验证尺寸是否为偶数
+        // Verify dimensions are even
         if (this.screenshotWidth % 2 !== 0 || this.screenshotHeight % 2 !== 0) {
-            console.error(`视频录制要求偶数尺寸，当前尺寸: ${this.screenshotWidth} x ${this.screenshotHeight}`);
+            console.error(`Video recording requires even dimensions, current dimensions: ${this.screenshotWidth} x ${this.screenshotHeight}`);
             return false;
         }
 
@@ -223,10 +222,8 @@ class Screenshot {
         this.videoFrames = [];
 
         try {
-            // 动态导入mp4-muxer，避免在不需要时加载
-            const { Muxer, ArrayBufferTarget } = await import('mp4-muxer');
             
-            console.log(`初始化视频录制: ${this.screenshotWidth}x${this.screenshotHeight}, ${frameRate}fps, ${Math.round(bitrate/1000000)}Mbps`);
+            console.log(`Initializing video recording: ${this.screenshotWidth}x${this.screenshotHeight}, ${frameRate}fps, ${Math.round(bitrate/1000000)}Mbps`);
             
             this.muxer = new Muxer({
                 target: new ArrayBufferTarget(),
@@ -244,8 +241,8 @@ class Screenshot {
                     this.muxer.addVideoChunk(chunk, meta);
                 },
                 error: (error) => {
-                    console.error('视频编码错误:', error);
-                    console.error('编码参数:', {
+                    console.error('Video encoding error:', error);
+                    console.error('Encoding parameters:', {
                         width: this.screenshotWidth,
                         height: this.screenshotHeight,
                         frameRate: this.frameRate,
@@ -261,10 +258,10 @@ class Screenshot {
                 bitrate
             });
 
-            console.log('视频录制初始化成功');
+            console.log('Video recording initialized successfully');
             return true;
         } catch (error) {
-            console.error('初始化视频录制失败:', error);
+            console.error('Failed to initialize video recording:', error);
             this.isRecording = false;
             return false;
         }
@@ -286,13 +283,13 @@ class Screenshot {
             const gl = this.gl;
             const cameraRenderTarget = this.camera.camera.renderTarget;
 
-            // 设置渲染目标
+            // Set render target
             this.camera.camera.renderTarget = renderTarget;
             
-            // 渲染当前帧
+            // Render current frame
             this.app.render();
 
-            // 获取纹理句柄
+            // Get texture handles
             const colorGlTexture = colorBuffer.impl
                 ? colorBuffer.impl._glTexture
                 : colorBuffer._glTexture;
@@ -300,7 +297,7 @@ class Screenshot {
                 ? depthBuffer.impl._glTexture
                 : depthBuffer._glTexture;
 
-            // 绑定帧缓冲并读取像素
+            // Bind framebuffer and read pixels
             gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
             gl.framebufferTexture2D(
                 gl.FRAMEBUFFER,
@@ -327,7 +324,7 @@ class Screenshot {
                 pixels
             );
 
-            // 翻转Y轴（OpenGL坐标系与视频坐标系相反）
+            // Flip Y-axis (OpenGL coordinates are opposite to video coordinates)
             const flippedPixels = new Uint8Array(pixels.length);
             const bytesPerRow = screenshotWidth * 4;
             
@@ -337,7 +334,7 @@ class Screenshot {
                 flippedPixels.set(pixels.subarray(srcOffset, srcOffset + bytesPerRow), dstOffset);
             }
 
-            // 创建VideoFrame并编码
+            // Create VideoFrame and encode
             const timestamp = Math.floor(1e6 * frameIndex / this.frameRate);
             const duration = Math.floor(1e6 / this.frameRate);
             
@@ -352,33 +349,33 @@ class Screenshot {
             this.encoder.encode(videoFrame);
             videoFrame.close();
 
-            // 恢复原来的渲染目标
+            // Restore original render target
             this.camera.camera.renderTarget = cameraRenderTarget;
             
         } catch (error) {
-            console.error('捕获视频帧失败:', error);
+            console.error('Failed to capture video frame:', error);
         }
     }
 
     async finishVideoRecording(filename = 'route_fly_video', autoDownload = true) {
         if (!this.isRecording || !this.encoder || !this.muxer) {
-            console.warn('没有正在进行的视频录制');
+            console.warn('No video recording in progress');
             return;
         }
 
         try {
-            console.log('正在完成视频录制...');
+            console.log('Completing video recording...');
             
-            // 刷新编码器并完成混合
+            // Flush encoder and finalize muxing
             await this.encoder.flush();
             this.muxer.finalize();
 
-            // 获取视频数据
+            // Get video data
             const arrayBuffer = this.muxer.target.buffer;
             
-            // 上传到服务器或下载
+            // Upload to server or download
             if (screenshot_api_host) {
-                // 转换为base64上传
+                // Convert to base64 for upload
                 const blob = new Blob([arrayBuffer], { type: 'video/mp4' });
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -394,10 +391,10 @@ class Screenshot {
                         })
                     })
                     .then(response => response.json())
-                    .then(data => console.log('视频保存成功:', data))
+                    .then(data => console.log('Video saved successfully:', data))
                     .catch(error => {
-                        console.error('视频上传错误:', error);
-                        // 如果上传失败且允许自动下载，则下载到本地
+                        console.error('Video upload error:', error);
+                        // If upload fails and auto-download is enabled, download locally
                         if (autoDownload) {
                             this.downloadVideo(arrayBuffer, filename);
                         }
@@ -405,28 +402,28 @@ class Screenshot {
                 };
                 reader.readAsDataURL(blob);
             } else if (autoDownload) {
-                // 本地下载
+                // Local download
                 this.downloadVideo(arrayBuffer, filename);
             }
 
-            // 清理资源
+            // Clean up resources
             this.encoder.close();
             this.encoder = null;
             this.muxer = null;
             this.isRecording = false;
             this.videoFrames = [];
             
-            console.log('视频录制完成');
-            return { arrayBuffer, filename }; // 返回数据供外部使用
+            console.log('Video recording completed');
+            return { arrayBuffer, filename }; // Return data for external use
             
         } catch (error) {
-            console.error('完成视频录制失败:', error);
+            console.error('Failed to complete video recording:', error);
             this.isRecording = false;
             return false;
         }
     }
 
-    // 新增：单独的下载方法
+    // New: Separate download method
     downloadVideo(arrayBuffer, filename) {
         const blob = new Blob([arrayBuffer], { type: 'video/mp4' });
         const url = window.URL.createObjectURL(blob);
@@ -435,7 +432,7 @@ class Screenshot {
         a.href = url;
         a.click();
         window.URL.revokeObjectURL(url);
-        console.log(`视频已下载: ${filename}.mp4`);
+        console.log(`Video downloaded: ${filename}.mp4`);
     }
 
     release(){

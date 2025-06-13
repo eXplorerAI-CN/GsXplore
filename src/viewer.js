@@ -1,4 +1,3 @@
-// import * as pc from '../engine';
 import * as pc from 'playcanvas';
 import { Observer } from '@playcanvas/observer';
 import { GSplatResource } from 'playcanvas';
@@ -41,9 +40,9 @@ const deviceType = 'webgl2';
 // const deviceType = 'webgpu';
 
 /**
- * 创建颜色材质
- * @param {pc.Color} color - 颜色
- * @returns {pc.Material} - 标准材质
+ * Create color material
+ * @param {pc.Color} color - Color
+ * @returns {pc.Material} - Standard material
  */
 const createColorMaterial = (color) => {
     const material = new pc.StandardMaterial();
@@ -69,10 +68,10 @@ const getAssetKey = (input) => {
     if (typeof input === 'string') {
         return md5(input);
     } else if (Array.isArray(input)) {
-        // 将points数组序列化为JSON字符串,然后计算MD5
+        // Serialize points array to JSON string, then calculate MD5
         return md5(JSON.stringify(input));
     }
-    return md5(JSON.stringify(input)); // 其他类型也序列化处理
+    return md5(JSON.stringify(input)); // Handle other types with serialization
 };
 
 
@@ -80,7 +79,7 @@ class Viewer{
     constructor(canvas, message=null){
         this.canvas = canvas;
         this.events = new pc.EventHandler();
-        this.canvas.style.backgroundColor = '#000000'; // 设置canvas背景色为黑色
+        this.canvas.style.backgroundColor = '#000000'; // Set canvas background color to black
         this.message = message;
         this.device = null;
         this.app = new pc.AppBase(this.canvas);
@@ -113,7 +112,7 @@ class Viewer{
         this.gridHelper = null;
         this.antialias = false;
         
-        // 添加切换参数
+        // Add toggle parameters
         this.showPointCloud = false;
         
         this.assets = {
@@ -167,7 +166,7 @@ class Viewer{
     }
 
     async splatParser(url, onProgress){
-        // 获取文件数据
+        // Get file data
         // const response = await fetch(url);
         // if (!response.ok) {
         //     throw new Error(`HTTP error! status: ${response.status}`);
@@ -249,13 +248,13 @@ class Viewer{
                 const currentStep = this.screenshotCount - this.screenshotFillCount * this.captureTransitBegin;
                 const entities = this.app.root.findByTag('gaussian');
 
-                let t = currentStep / totalSteps; // 当前时间步的比例
+                let t = currentStep / totalSteps; // Current time step ratio
                 if (this.screenshotCount < this.screenshotFillCount * this.captureTransitBegin) {
                     t = 0;
                 }
 
                 entities.forEach((e) => {
-                    // 使用指数函数来调整增加的速率，确保前慢后快
+                    // Use exponential function to adjust the increase rate, ensuring slow at first and fast later
                     e.script.pointCloud.setSplatTransit_2(t);
                 });
             } else {
@@ -280,10 +279,10 @@ class Viewer{
             return null;
         }
 
-        // 创建新的GSplatData实例进行压缩
-        // 使用较高的LOD level (例如4)来实现更大的压缩率
+        // Create new GSplatData instance for compression
+        // Use higher LOD level (e.g. 4) to achieve greater compression ratio
         const compressedData = new GSplatData(elements, {
-            lodLevel: lodLevel,  // 更高的LOD级别会产生更大的压缩率
+            lodLevel: lodLevel,  // Higher LOD level results in greater compression ratio
         }, gridSize);
         console.log('numSplats: ', compressedData.numSplats)
 
@@ -296,7 +295,7 @@ class Viewer{
 
     async loadModel(url, filename) {
         const assetKey = getAssetKey(url);
-        // 先去掉查询参数，再提取文件扩展名
+        // First remove query parameters, then extract file extension
         let filetype = url.split('?')[0].split('.').pop().toLowerCase();
         if (filetype.length > 6){
             filetype = filename.split('.').pop().toLowerCase();;
@@ -304,7 +303,7 @@ class Viewer{
         let asset = this.assets.urlAssets[assetKey];    
         if (filetype !== 'ply'){
             if (!asset){
-                // 根据文件类型创建不同的资产
+                // Create different assets based on file type
                 if (filetype === 'ply') {
                     asset = new pc.Asset(filename, 'gsplat', { url: url });
                 } else if (filetype === 'glb') {
@@ -312,7 +311,7 @@ class Viewer{
                 } else if (filetype === 'obj') {
                     asset = new pc.Asset(filename, 'container', { 
                         url: url,
-                        // OBJ文件通常需要指定格式
+                        // OBJ files usually need format specification
                         format: 'obj'
                     });
                 }
@@ -320,7 +319,7 @@ class Viewer{
                 if (asset) {
                     this.app.assets.add(asset);
 
-                    // 使用 Promise 包装资产加载过程
+                    // Wrap asset loading process with Promise
                     await new Promise((resolve, reject) => {
                         asset.once('load', () => resolve());
                         asset.once('error', (err) => reject(err));
@@ -352,22 +351,22 @@ class Viewer{
             entity = this.genSplatEntity(entity_elements);
             entity.tags.add('gaussian');
             
-            // // 为ply文件生成point cloud mesh
+            // Generate point cloud mesh for ply file
             // const splatData = asset.resource.splatData;
             // const pointCloudMeshInstance = pointCloudMesh(this.device, splatData, 10);
             // pointCloudMeshInstance.cull = false;
             
-            // // 创建point cloud实体
+            // Create point cloud entity
             // const pointCloudEntity = new pc.Entity('pointCloud');
             // pointCloudEntity.addComponent('render', {
             //     meshInstances: [pointCloudMeshInstance]
             // });
             
-            // // 将point cloud实体作为splat实体的子实体
+            // Add point cloud entity as child of splat entity
             // entity.addChild(pointCloudEntity);
             // pointCloudEntity.tags.add('pointcloud');
             
-            // // 初始状态：显示splat，隐藏point cloud
+            // Initial state: show splat, hide point cloud
             // entity.gsplat.enabled = !this.showPointCloud;
             // pointCloudEntity.render.enabled = this.showPointCloud;
             
@@ -390,37 +389,37 @@ class Viewer{
             entity = this.genSplatEntity(entity_elements);
             entity.tags.add('gaussian');
             
-            // // 为splat文件也生成point cloud mesh
+            // Generate point cloud mesh for splat file
             // const t_gsplat_data = new GSplatData(entity_elements, {'lodLevel': -1});
             // const pointCloudMeshInstance = pointCloudMesh(this.device, t_gsplat_data, 10);
             
-            // // 创建point cloud实体
+            // Create point cloud entity
             // const pointCloudEntity = new pc.Entity('pointCloud');
             // pointCloudEntity.addComponent('render', {
             //     meshInstances: [pointCloudMeshInstance]
             // });
             
-            // // 将point cloud实体作为splat实体的子实体
+            // Add point cloud entity as child of splat entity
             // entity.addChild(pointCloudEntity);
             // pointCloudEntity.tags.add('pointcloud');
             
-            // // 初始状态：显示splat，隐藏point cloud
+            // Initial state: show splat, hide point cloud
             // entity.gsplat.enabled = !this.showPointCloud;
             // pointCloudEntity.render.enabled = this.showPointCloud;
             
         } else if (filetype === 'glb' || filetype === 'obj') {
-            // 创建一个新实体来承载模型
+            // Create a new entity to carry the model
             entity = asset.resource.instantiateRenderEntity();
             
-            // 处理材质以避免场景颜色纹理采样器错误
+            // Process material to avoid scene color texture sampler error
             if (entity.render) {
                 const meshInstances = entity.render.meshInstances;
                 meshInstances.forEach(instance => {
                     if (instance.material) {
-                        // 创建新的基础材质
+                        // Create new basic material
                         const newMaterial = new pc.StandardMaterial();
                         
-                        // 复制原始材质的基本属性
+                        // Copy basic attributes of original material
                         if (instance.material.diffuseMap) {
                             newMaterial.diffuseMap = instance.material.diffuseMap;
                         }
@@ -428,23 +427,23 @@ class Viewer{
                             newMaterial.normalMap = instance.material.normalMap;
                         }
                         
-                        // 设置基本属性
+                        // Set basic attributes
                         newMaterial.diffuse = instance.material.diffuse;
                         newMaterial.specular = instance.material.specular;
                         newMaterial.shininess = instance.material.shininess;
                         newMaterial.metalness = instance.material.metalness;
                         newMaterial.useMetalness = true;
                         
-                        // 禁用可能导致问题的特性
+                        // Disable features that may cause problems
                         // newMaterial.useSceneColorMap = false;
                         newMaterial.useFog = false;
                         // newMaterial.useGammaToCineon = false;
                         // newMaterial.useSkybox = false;
                         
-                        // 更新材质
+                        // Update material
                         newMaterial.update();
                         
-                        // 应用新材质
+                        // Apply new material
                         instance.material = newMaterial;
                     }
                 });
@@ -562,13 +561,13 @@ class Viewer{
         this.camera.addComponent('camera', {
             clearColor: new pc.Color(0, 0, 0, 1),
             requestSceneColorMap: true,
-            // 添加其他相机选项
+            // Add other camera options
             // farClip: 1000,
             // nearClip: 0.1,
             fov: 90
         });
 
-        // 确保相机层级设置正确
+        // Ensure correct camera hierarchy
         // this.camera.camera.layers = [pc.LAYERID_WORLD, pc.LAYERID_DEPTH, pc.LAYERID_SKYBOX, pc.LAYERID_UI];
         
         this.camera.addComponent('script');
@@ -588,21 +587,21 @@ class Viewer{
         orbitCamera.distance = 14;
 
 
-        // 在 fly camera 实体上
+        // On fly camera entity
         const cameraCollision = this.camera.addComponent('collision');
-        cameraCollision.type = 'capsule';  // 使用胶囊体碰撞器，更适合角色/相机
-        cameraCollision.height = 1.5;        // 减小胶囊体高度
-        cameraCollision.radius = 1.5;      // 减小胶囊体半径
+        cameraCollision.type = 'capsule';  // Use capsule collider, more suitable for character/camera
+        cameraCollision.height = 1.5;        // Reduce capsule height
+        cameraCollision.radius = 1.5;      // Reduce capsule radius
         
-        // 修改刚体组件设置
+        // Modify rigidbody component settings
         const cameraRigidbody = this.camera.addComponent('rigidbody');
-        cameraRigidbody.type = 'static';  // 使用运动学刚体
+        cameraRigidbody.type = 'static';  // Use kinematic rigidbody
         cameraRigidbody.mass = 1;
         cameraRigidbody.linearDamping = 0;
         cameraRigidbody.angularDamping = 0;
         cameraRigidbody.friction = 0;
         cameraRigidbody.restitution = 0;
-        cameraRigidbody.gravity = new pc.Vec3(0, 0, 0);  // 禁用重力
+        cameraRigidbody.gravity = new pc.Vec3(0, 0, 0);  // Disable gravity
         cameraRigidbody.angularFactor = new pc.Vec3(0, 0, 0);
         // cameraRigidbody.linearFactor = new pc.Vec3(1, 0, 1);
 
@@ -633,9 +632,9 @@ class Viewer{
     add_line(points){
         points = points.reduce((accumulator, current, index) => {
             const value = new pc.Vec3(current.x, current.y, current.z);
-            if (index === 0 || index === points.length - 1) { // 如果是第一个元素，仅添加一次
+            if (index === 0 || index === points.length - 1) { // If it's the first element, add only once
                 accumulator.push(value);
-            } else { // 否则，将元素添加两次
+            } else { // Otherwise, add the element twice
                 accumulator.push(value, value);
             }
             return accumulator;
@@ -651,7 +650,7 @@ class Viewer{
         const scripts = ['orbitCamera', 'flyCamera'];
         let ret = null;
 
-        // 禁用所有脚本，启用所需脚本
+        // Disable all scripts, enable required scripts
         scripts.forEach(script => {
             if (this.camera.script.has(script)) {
                 this.camera.script[script].enabled = (script === camera_script_id);
@@ -989,7 +988,7 @@ class Viewer{
                             new pc.Vec3(lookat[0], lookat[1], lookat[2])
                         );
                         
-                        // 设置相机距离和俯仰角限制
+                        // Set camera distance and pitch angle limits
                         if (scene.camera.distanceMax !== undefined) {
                             camera_script.distanceMax = scene.camera.distanceMax;
                         } else {
@@ -1065,7 +1064,7 @@ class Viewer{
 
 
         // ------------ entities ------------
-        // 1. 删除不再需要的实体
+        // 1. Remove entities that are no longer needed
         for (const [id, entity] of Object.entries(scene_mapping.entities)) {
             if (!scene.data.entities[id]) {
                 console.log('removeEntityById based on key', id)
@@ -1073,7 +1072,7 @@ class Viewer{
             }
         }
 
-        // 2. 创建新实体或更新有实体
+        // 2. Create new entities or update existing ones
         for (const [id, entityData] of Object.entries(scene.data.entities)) {
             if (this.scene_version !== current_version) {
                 return;
@@ -1089,7 +1088,7 @@ class Viewer{
                 }
             }
 
-            // 如果实体不存在或URL改变，创建新实体
+            // If the entity does not exist or the URL has changed, create a new entity
             if (!entity) {
                 if (['gsplat', 'glb'].includes(entityData.type)) {
                     entity = await this.loadModel(entityData.url, id);
@@ -1132,18 +1131,18 @@ class Viewer{
                     this.app.root.addChild(entity);
                     scene_mapping.entities[id] = { ref: entity, type: entityData.type, url: entityData.url };
 
-                    // 设置实体的包围盒
+                    // Set the bounding box for the entity
                     if (entity.render && entity.render.meshInstances[0]) {
                         const aabb = entity.render.meshInstances[0].aabb;
                         aabb.halfExtents.set(
                             entityData.width / 2,
-                            0.05,                 // 厚度的一半
+                            0.05,                 // Half of the thickness
                             entityData.height / 2
                         );
-                        // 确保包围盒中心点正确
+                        // Ensure the bounding box center is correct
                         aabb.center.set(0, 0, 0);
 
-                        // 更新mesh实例的包围盒
+                        // Update the mesh instance's bounding box
                         entity.render.meshInstances[0].setCustomAabb(aabb);
                     }
                 } else if (entityData.type === 'simpleMesh') {
@@ -1187,13 +1186,13 @@ class Viewer{
                         const aabb = entity.render.meshInstances[0].aabb;
                         aabb.halfExtents.set(
                             entityData.width / 2,
-                            0.05,                 // 厚度的一半
+                            0.05,                 // Half of the thickness
                             entityData.height / 2
                         );
-                        // 确保包围盒中心点正确
+                        // Ensure the bounding box center is correct
                         aabb.center.set(0, 0, 0);
 
-                        // 更新mesh实例的包围盒
+                        // Update the mesh instance's bounding box
                         entity.render.meshInstances[0].setCustomAabb(aabb);
                     }
                 } else {
@@ -1209,14 +1208,14 @@ class Viewer{
                 entity.scene_id = 'entity_' + id;
 
                 if (entityData.visible === false) {
-                    entity.render.enabled = false;  // 禁用渲染
+                    entity.render.enabled = false;  // Disable rendering
                 } else {
                     if (entity.render) {
-                        entity.render.enabled = true;  // 启用渲染
+                        entity.render.enabled = true;  // Enable rendering
                     }
                 }
 
-                // --------------- 更新实体变换 ---------------
+                // --------------- Update entity transform ---------------
                 const pos = entityData.position;
                 const rot = entityData.rotation;
                 const scale = entityData.scale;
@@ -1234,7 +1233,7 @@ class Viewer{
                 if (scale && !currentScale.equals(new pc.Vec3(scale[0], scale[1], scale[2]))) {
                     entity.setLocalScale(scale[0], scale[1], scale[2]);
                 }
-                // --------------- 更新实体变换 ---------------
+                // --------------- Update entity transform ---------------
 
                 if (entityData.scripts) {
                     for (const [script_name, attributes] of Object.entries(entityData.scripts)) {
@@ -1250,21 +1249,21 @@ class Viewer{
 
                 if (entityData.collision !== undefined) {
                     const collisionSettings = entityData.collision;
-                    // 添加碰撞组件
+                    // Add collision component
                     let shouldUpdateCollision = false;
 
-                    // 检查实体是否已经有碰撞组件
+                    // Check if the entity already has a collision component
                     const existingCollision = entity.collision;
                     const existingRigidbody = entity.rigidbody;
                     const collision_type = collisionSettings.type || 'box';
 
-                    // 检查碰撞设置是否发生变化
+                    // Check if collision settings have changed
                     if (!existingCollision ||
                         existingCollision.type !== collision_type) {
 
                         shouldUpdateCollision = true;
 
-                        // 如果已存在碰撞组件，先移除
+                        // If an existing collision component exists, remove it
                         if (existingCollision) {
                             entity.ref.removeComponent('collision');
                         }
@@ -1307,10 +1306,10 @@ class Viewer{
                                 console.warn('collision type not supported: ', collisionSettings.type);
                         }
 
-                        // 添加刚体组件
+                        // Add rigidbody component
                         const rigidbody = entity.addComponent('rigidbody');
                         const rigidbodyType = collisionSettings.rigidbody?.type || 'static';
-                        rigidbody.type = rigidbodyType; // 静态刚体，不会移动
+                        rigidbody.type = rigidbodyType; // Static rigidbody, will not move
                         rigidbody.friction = collisionSettings.rigidbody?.friction || 0.5;
                         rigidbody.restitution = collisionSettings.rigidbody?.restitution || 0.5;
                     }
@@ -1357,7 +1356,7 @@ class Viewer{
     }
 
     traceScreenPosition(entity, occlusionUpdateInterval = -1) {
-        // 1. 确保脚本类型已注册
+        // 1. Ensure the script type is registered
         if (!this.camera.script.has('traceScreenPosition')) {
             pc.registerScript(TraceScreenPosition, 'traceScreenPosition');
             this.camera.script.create('traceScreenPosition');
@@ -1365,24 +1364,24 @@ class Viewer{
             tracker.events = this.events;
         }
         
-        // 2. 获取全局脚本实例
+        // 2. Get the global script instance
         const tracker = this.camera.script['traceScreenPosition'];
         
-        // 3. 处理输入的实体（支持字符串ID或实体对象）
+        // 3. Handle the input entity (supports string ID or entity object)
         let targetEntity = entity;
         if (typeof entity === 'string') {
             if (!this.scene_mapping?.entities?.[entity]?.ref) {
-                throw new Error(`找不到ID为 "${entity}" 的实体`);
+                throw new Error(`Cannot find entity with ID "${entity}"`);
             }
             targetEntity = this.scene_mapping.entities[entity].ref;
         }
         
-        // 4. 设置遮挡检测间隔（如果提供）
+        // 4. Set occlusion detection interval (if provided)
         if (occlusionUpdateInterval >= 0) {
             tracker.setOcclusionInterval(occlusionUpdateInterval);
         }
         
-        // 5. 添加实体到追踪列表
+        // 5. Add entity to tracking list
         tracker.addEntity(targetEntity);
         return true;
     }
@@ -1406,7 +1405,7 @@ class Viewer{
             }
         })
 
-        // 添加标记为 'gaussian_copy' 的实体信息
+        // Add marker for 'gaussian_copy' entity information
         const gaussianCopies = this.app.root.findByTag('gsplat_copy');
         gaussianCopies.forEach((entity) => {
             if (entity.gsplat) {
@@ -1455,12 +1454,12 @@ class Viewer{
             // preventDefault: true,
             // stopPropagation: true,
             // capture: true,
-            // 只在canvas元素上捕获盘事件
+            // Only capture keyboard events on the canvas element
             element: this.canvas
         });
         createOptions.lightmapper = pc.Lightmapper;
 
-        // 添加渲染选项
+        // Add rendering options
         createOptions.graphicsDeviceOptions = {
             preferWebGl2: true,
             antialias: this.antialias,
@@ -1473,7 +1472,7 @@ class Viewer{
             engine: Ammo
         };
 
-        // 设置场景渲染选项
+        // Set scene rendering options
         this.app.scene = new pc.Scene(device);
         // this.app.scene.gammaCorrection = pc.GAMMA_SRGB;
         // this.app.scene.toneMapping = pc.TONEMAP_ACES;
@@ -1562,7 +1561,7 @@ class Viewer{
         keyLight.setEulerAngles(0, 0, -60);
 
 
-        // 初始化网格助手
+        // Initialize grid helper
         this.gridHelper = new GridHelper(this.app);
 
         this.app.on('update', () => {
@@ -1601,7 +1600,7 @@ class Viewer{
     //         width: 1024,
     //         height: 1024,
     //         camera: this.camera.camera,
-    //         padding: 0.1  // 10%的边界填充
+    //         padding: 0.1  // 10% boundary padding
     //     });
 
     //     // 可选：保存纹理
@@ -1626,33 +1625,33 @@ class Viewer{
         this.app.systems.rigidbody.destroy();
         this.app.systems.collision.destroy();
 
-        // 重新创建刚体和碰撞系统
+        // Recreate rigidbody and collision systems
         this.app.systems.rigidbody = new pc.RigidBodyComponentSystem(this.app);
         this.app.systems.collision = new pc.CollisionComponentSystem(this.app);
     }
 
     show_text(message, pos, euler=[0, 0, 1], color=[1, 1, 1, 1]){
-        // 先从app注册的全局asset里面查找字体
+        // First look for font in app's registered global assets
         let fontAsset = this.app.assets.find('font_arial', 'font');
         
         if (!fontAsset) {
-            // 如果没找到，创建新的asset并异步加载
+            // If not found, create new asset and load asynchronously
             fontAsset = new pc.Asset('font_arial', 'font', { url: '/fonts/arial.json' });
             this.app.assets.add(fontAsset);
             
-            // 异步加载，加载完成后重新调用show_text
+            // Load asynchronously, call show_text again after loading
             new Promise((resolve, reject) => {
                 fontAsset.once('load', () => resolve());
                 fontAsset.once('error', (err) => reject(err));
                 this.app.assets.load(fontAsset);
             }).then(() => {
-                // 加载完成后，以相同参数再次运行show_text
+                // After loading, run show_text again with same parameters
                 this.show_text(message, pos, euler, color);
             }).catch((err) => {
                 console.error('Font loading failed:', err);
             });
             
-            return; // 等待异步加载完成后再次调用
+            return; // Wait for asynchronous loading to complete before calling again
         }
 
         // Create a text element-based entity
@@ -1669,7 +1668,7 @@ class Viewer{
         text.setLocalPosition(pos[0], pos[1], pos[2]);
         text.setLocalEulerAngles(euler[0], euler[1], euler[2]);
         
-        // 设置text为双面显示
+        // Set text to be double-sided
         if (text.element && text.element.material) {
             text.element.material.cull = pc.CULLFACE_NONE;
             text.element.material.update();
@@ -1679,7 +1678,7 @@ class Viewer{
         this.app.root.addChild(text);
     }
 
-    // 获取所有splat实体
+    // Get all splat entities
     getSplatEntities() {
         return this.app.root.findByTag('gaussian');
     }
@@ -1687,27 +1686,27 @@ class Viewer{
     testDistance() {
         const distanceMeasure = new DistanceMeasure(this.app, this.device, this.camera, this.gizmoHandler);
 
-        // 设置倍率和单位（例如：将场景单位转换为厘米）
+        // Set scale and unit (e.g., convert scene units to centimeters)
         distanceMeasure.setScaleAndUnit(1.5, 'm');
 
-        // 添加测量点
+        // Add measurement points
         distanceMeasure.addMeasurePoint(new pc.Vec3(0, 0, 0));
         distanceMeasure.addMeasurePoint(new pc.Vec3(1, 0, 0));
         distanceMeasure.addMeasurePoint(new pc.Vec3(2, 1, 0));
     }
 
     testRectangle(){
-        // 实例化
+        // Instantiate
         const rectanglePlane = new RectanglePlane(this.app, this.device, this.camera, this.gizmoHandler);
 
-        // 添加三个控制点
+        // Add three control points
         rectanglePlane.addControlPoint(new pc.Vec3(0, 0, 0));
         rectanglePlane.addControlPoint(new pc.Vec3(5, 0, 0));
         rectanglePlane.addControlPoint(new pc.Vec3(2, 3, 0));
 
-        // 获取矩形信息
+        // Get rectangle information
         const info = rectanglePlane.getRectangleInfo();
-        console.log('矩形面积:', info.area);
+        console.log('Rectangle area:', info.area);
     }
 
 }

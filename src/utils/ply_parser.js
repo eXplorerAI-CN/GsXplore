@@ -1,13 +1,13 @@
 /**
- * PLY 文件解析器工具
- * 基于 PlayCanvas 引擎中的 PLY 读取机制简化而来
+ * PLY file parser utility
+ * Simplified from PLY reading mechanism in PlayCanvas engine
  */
 
-// PLY 文件魔术字节和结束标记
+// PLY file magic bytes and end markers
 const magicBytes = new Uint8Array([112, 108, 121, 10]); // ply\n
 const endHeaderBytes = new Uint8Array([10, 101, 110, 100, 95, 104, 101, 97, 100, 101, 114, 10]); // \nend_header\n
 
-// 数据类型映射
+// Data type mappings
 const dataTypeMap = new Map([
     ['char', Int8Array],
     ['uchar', Uint8Array],
@@ -20,10 +20,10 @@ const dataTypeMap = new Map([
 ]);
 
 /**
- * 在缓冲区中查找指定序列的首次出现位置
- * @param {Uint8Array} buf - 要搜索的缓冲区
- * @param {Uint8Array} search - 要查找的序列
- * @returns {number} 首次出现的索引，如果未找到则返回 -1
+ * Find the first occurrence of a sequence in a buffer
+ * @param {Uint8Array} buf - Buffer to search in
+ * @param {Uint8Array} search - Sequence to find
+ * @returns {number} Index of first occurrence, or -1 if not found
  */
 const find = (buf, search) => {
     const endIndex = buf.length - search.length;
@@ -42,10 +42,10 @@ const find = (buf, search) => {
 };
 
 /**
- * 检查数组 a 是否以数组 b 的所有元素开头
- * @param {Uint8Array} a - 要检查的数组
- * @param {Uint8Array} b - 要查找的开头元素数组
- * @returns {boolean} 如果 a 以 b 的所有元素开头则返回 true
+ * Check if array a starts with all elements of array b
+ * @param {Uint8Array} a - Array to check
+ * @param {Uint8Array} b - Array to find at the start of a
+ * @returns {boolean} True if a starts with b
  */
 const startsWith = (a, b) => {
     if (a.length < b.length) {
@@ -62,9 +62,9 @@ const startsWith = (a, b) => {
 };
 
 /**
- * 解析 PLY 文件头部文本
- * @param {string[]} lines - 头部文本行数组
- * @returns {object} 包含元素、格式和注释的对象
+ * Parse PLY file header text
+ * @param {string[]} lines - Array of header text lines
+ * @returns {object} Object containing elements, format, and comments
  */
 const parseHeader = (lines) => {
     const elements = [];
@@ -90,7 +90,7 @@ const parseHeader = (lines) => {
                 break;
             case 'property': {
                 if (!dataTypeMap.has(words[1])) {
-                    throw new Error(`不识别的属性数据类型 '${words[1]}' 在 PLY 头部中`);
+                    throw new Error(`Unrecognized attribute data type '${words[1]}' in PLY header`);
                 }
                 const element = elements[elements.length - 1];
                 element.properties.push({
@@ -102,7 +102,7 @@ const parseHeader = (lines) => {
                 break;
             }
             default:
-                throw new Error(`不识别的头部值 '${words[0]}' 在 PLY 头部中`);
+                throw new Error(`Unrecognized header value '${words[0]}' in PLY header`);
         }
     }
 
@@ -110,9 +110,9 @@ const parseHeader = (lines) => {
 };
 
 /**
- * 检查是否为压缩的 PLY 文件
- * @param {Array} elements - 元素数组
- * @returns {boolean} 如果是压缩 PLY 文件则返回 true
+ * Check if PLY file is compressed
+ * @param {Array} elements - Array of elements
+ * @returns {boolean} True if PLY file is compressed
  */
 const isCompressedPly = (elements) => {
     const chunkProperties = [
@@ -147,9 +147,9 @@ const isCompressedPly = (elements) => {
 };
 
 /**
- * 检查是否为浮点数 PLY 文件
- * @param {Array} elements - 元素数组
- * @returns {boolean} 如果是浮点数 PLY 文件则返回 true
+ * Check if PLY file is float
+ * @param {Array} elements - Array of elements
+ * @returns {boolean} True if PLY file is float
  */
 const isFloatPly = (elements) => {
     return elements.length === 1 &&
@@ -158,17 +158,17 @@ const isFloatPly = (elements) => {
 };
 
 /**
- * 解析二进制 PLY 数据
- * @param {Uint8Array} data - PLY 文件的二进制数据
- * @param {Array} elements - 从头部解析出的元素信息
- * @param {number} dataOffset - 数据部分的起始偏移量
- * @returns {Array} 解析后的元素数据
+ * Parse binary PLY data
+ * @param {Uint8Array} data - Binary data of PLY file
+ * @param {Array} elements - Element information parsed from header
+ * @param {number} dataOffset - Start offset of data section
+ * @returns {Array} Parsed element data
  */
 const parseBinaryData = (data, elements, dataOffset) => {
     const dataView = new DataView(data.buffer);
     let offset = dataOffset;
 
-    // 为每个元素分配存储空间
+    // Allocate storage space for each element
     elements.forEach((element) => {
         element.properties.forEach((property) => {
             const storageType = dataTypeMap.get(property.type);
@@ -178,7 +178,7 @@ const parseBinaryData = (data, elements, dataOffset) => {
         });
     });
 
-    // 解析每个元素的数据
+    // Parse element data
     elements.forEach((element) => {
         const properties = element.properties;
         const recordSize = properties.reduce((sum, p) => sum + p.byteSize, 0);
@@ -212,7 +212,7 @@ const parseBinaryData = (data, elements, dataOffset) => {
                             property.storage[i] = dataView.getFloat64(offset, true);
                             break;
                         default:
-                            throw new Error(`不支持的属性数据类型 '${property.type}'`);
+                            throw new Error(`Unsupported attribute data type '${property.type}'`);
                     }
                 }
                 offset += property.byteSize;
@@ -224,12 +224,12 @@ const parseBinaryData = (data, elements, dataOffset) => {
 };
 
 /**
- * PLY 文件解析器主函数
- * @param {ArrayBuffer} arrayBuffer - PLY 文件的 ArrayBuffer 数据
- * @param {object} options - 解析选项
- * @param {Function} options.propertyFilter - 属性过滤函数
- * @param {Function} options.progressCallback - 进度回调函数
- * @returns {Promise<object>} 解析结果，包含数据和注释
+ * PLY file parser main function
+ * @param {ArrayBuffer} arrayBuffer - ArrayBuffer data of PLY file
+ * @param {object} options - Parser options
+ * @param {Function} options.propertyFilter - Attribute filter function
+ * @param {Function} options.progressCallback - Progress callback function
+ * @returns {Promise<object>} Parsing result, containing data and comments
  */
 async function plyParser(arrayBuffer, options = {}) {
     try {
@@ -237,46 +237,46 @@ async function plyParser(arrayBuffer, options = {}) {
         
         const data = new Uint8Array(arrayBuffer);
         
-        // 检查魔术字节
+        // Check magic bytes
         if (!startsWith(data, magicBytes)) {
-            throw new Error('无效的 PLY 文件头');
+            throw new Error('Invalid PLY file header');
         }
 
-        // 查找头部结束标记
+        // Find header end marker
         const headerLength = find(data, endHeaderBytes);
         if (headerLength === -1) {
-            throw new Error('未找到 PLY 头部结束标记');
+            throw new Error('Header end marker not found');
         }
 
-        // 解码头部文本
+        // Decode header text
         const headerText = new TextDecoder('ascii').decode(data.subarray(0, headerLength));
         const lines = headerText.split('\n');
 
-        // 解析头部
+        // Parse header
         const { elements, format, comments } = parseHeader(lines);
 
-        // 检查格式支持
+        // Check format support
         if (format !== 'binary_little_endian') {
-            throw new Error(`不支持的 PLY 格式: ${format}`);
+            throw new Error(`Unsupported PLY format: ${format}`);
         }
 
-        // 计算数据起始偏移量
+        // Calculate data start offset
         const dataOffset = headerLength + endHeaderBytes.length;
 
-        // 报告进度
+        // Report progress
         if (progressCallback) {
-            progressCallback(0.1, '解析头部完成');
+            progressCallback(0.1, 'Parsing header completed');
         }
 
-        // 解析二进制数据
+        // Parse binary data
         const parsedElements = parseBinaryData(data, elements, dataOffset);
 
-        // 报告进度
+        // Report progress
         if (progressCallback) {
-            progressCallback(1.0, '解析完成');
+            progressCallback(1.0, 'Parsing completed');
         }
 
-        // 返回结果
+        // Return result
         return {
             data: {
                 elements: parsedElements,
@@ -289,7 +289,7 @@ async function plyParser(arrayBuffer, options = {}) {
         };
 
     } catch (error) {
-        console.error("PLY 文件解析错误:", error);
+        console.error("PLY file parsing error:", error);
         throw error;
     }
 }
