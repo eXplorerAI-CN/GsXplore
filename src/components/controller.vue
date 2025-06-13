@@ -27,14 +27,14 @@ let lastTouchY = 0
 let hasMovedDuringInteraction = false
 let isPointerLocked = false
 const speed = ref(10)
-const speedLevel = ref(6) // 默认在中间位置
+const speedLevel = ref(6) // 默认在中间位置（2-10 范围的中间值）
 let angleUpdateInterval = null // 用于角度更新的定时器
 const isDragging = ref(false)
 
 // 计算实际速度值
 function calculateSpeed(level) {
   const baseSpeed = 10
-  const factor = 1.5
+  const factor = 2
   if (level === 6) return baseSpeed
   if (level > 6) {
     return baseSpeed * Math.pow(factor, level - 6)
@@ -506,7 +506,7 @@ function handleDrag(event) {
   // 限制鼠标位置在滑块范围内
   const mouseY = Math.max(rect.top, Math.min(event.clientY, rect.bottom))
   const percentage = 1 - (mouseY - rect.top) / rect.height
-  const level = Math.max(1, Math.min(11, Math.round(percentage * 10) + 1))
+  const level = Math.max(2, Math.min(10, Math.round(percentage * 8) + 2)) // 修改范围为 2-10
   speedLevel.value = level
 }
 
