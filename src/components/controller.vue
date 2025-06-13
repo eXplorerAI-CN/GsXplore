@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import nipplejs from 'nipplejs'
 
 const props = defineProps({
@@ -26,8 +26,26 @@ let lastTouchX = 0
 let lastTouchY = 0
 let hasMovedDuringInteraction = false
 let isPointerLocked = false
-let speed = 20
+const speed = ref(10)
+const speedLevel = ref(5) // 默认在中间位置
 let angleUpdateInterval = null // 用于角度更新的定时器
+const isDragging = ref(false)
+
+// 计算实际速度值
+function calculateSpeed(level) {
+  const baseSpeed = 10
+  const factor = 1.5
+  if (level === 5) return baseSpeed
+  if (level > 5) {
+    return baseSpeed * Math.pow(factor, level - 5)
+  }
+  return baseSpeed / Math.pow(factor, 5 - level)
+}
+
+// 监听 speedLevel 变化
+watch(speedLevel, (newLevel) => {
+  speed.value = calculateSpeed(newLevel)
+})
 
 // 用于跟踪按键状态
 const keyState = {
@@ -171,22 +189,23 @@ function updateMovement() {
   let y = 0
   let z = 0
   if (keyState.w)
-    z -= speed
+    z -= speed.value
   if (keyState.s)
-    z += speed
+    z += speed.value
   if (keyState.a)
-    x -= speed
+    x -= speed.value
   if (keyState.d)
-    x += speed
+    x += speed.value
   if (keyState.r)
-    y += speed
+    y += speed.value
   if (keyState.f)
-    y -= speed
+    y -= speed.value
 
   if(controlType.value === 'orbit'){
     viewer.setOrbitCameraPivotVelocity(x/50, y/50, -z/50)
   }
   else{
+    console.log('执行移动', x, y, z)
     viewer.setFlyCameraVelocity(x, y, z)
   }
 }
@@ -226,7 +245,7 @@ function stopAngleUpdate() {
 
 function handleShiftChange() {
   // 在这里处理 Shift 键状态变化
-  speed = keyState.shift ? 40 : 20
+  speed.value = keyState.shift ? 40 : 20
   // 例如，可以在这里改变移动速度
   updateMovement()
 }
@@ -245,7 +264,7 @@ function initJoystick() {
 }
 
 function handleJoystickMove(evt, data) {
-  const maxSpeed = speed // 最大速度
+  const maxSpeed = speed.value // 最大速度
   const deadzone = 0.1 // 死区，防止微小移动
 
   // 计算速度向量
@@ -454,6 +473,8 @@ onUnmounted(() => {
   if (joystick) {
     joystick.destroy()
   }
+  document.removeEventListener('mousemove', handleDrag)
+  document.removeEventListener('mouseup', stopDrag)
 })
 
 const joystickShow = ref(true)
@@ -465,6 +486,30 @@ function toggleJoystick(show) {
 const showControlTips = ref(false)
 function toggleControlTips() {
   showControlTips.value = !showControlTips.value
+}
+
+// 处理拖拽
+function startDrag(event) {
+  isDragging.value = true
+  document.addEventListener('mousemove', handleDrag)
+  document.addEventListener('mouseup', stopDrag)
+  handleDrag(event)
+}
+
+function handleDrag(event) {
+  if (!isDragging.value) return
+  
+  const slider = event.target.closest('.slider-container')
+  const rect = slider.getBoundingClientRect()
+  const percentage = 1 - (event.clientY - rect.top) / rect.height
+  const level = Math.max(1, Math.min(11, Math.round(percentage * 10) + 1))
+  speedLevel.value = level
+}
+
+function stopDrag() {
+  isDragging.value = false
+  document.removeEventListener('mousemove', handleDrag)
+  document.removeEventListener('mouseup', stopDrag)
 }
 
 defineExpose({
@@ -487,7 +532,7 @@ defineExpose({
       </div>
     </div>
     <!-- 控制说明按钮 -->
-    <div class="control-tips-button pointer-events-auto" @click="toggleControlTips">
+    <div v-if="false" class="control-tips-button pointer-events-auto" @click="toggleControlTips">
       <div class="tips-icon">
         <div class="i-ri-question-line text-xl"></div>
       </div>
@@ -530,6 +575,23 @@ defineExpose({
       </div>
       <div class="reset-tip opacity-0 group-hover:opacity-100 transition-opacity duration-300 absolute right-full mr-2 whitespace-nowrap bg-black/60 backdrop-blur-sm text-white text-sm px-2 py-1 rounded top-1/2 -translate-y-1/2">
         Reset Camera
+      </div>
+    </div>
+
+    <!-- 速度滑动条 -->
+    <div class="speed-slider pointer-events-auto">
+      <div class="slider-container">
+        <div class="slider-track">
+          <div class="slider-progress" :style="{ height: `${(speedLevel - 1) * 10}%` }"></div>
+          <div 
+            class="slider-handle"
+            :style="{ bottom: `${(speedLevel - 1) * 10}%` }"
+            @mousedown="startDrag"
+          ></div>
+        </div>
+        <!-- <div class="slider-tip">
+          Speed: {{ Math.round(speed * 100) / 100 }}
+        </div> -->
       </div>
     </div>
 
@@ -713,6 +775,95 @@ defineExpose({
 
     &:active {
       transform: scale(0.95);
+    }
+  }
+}
+
+.speed-slider {
+  position: fixed;
+  right: 20px;
+  bottom: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  pointer-events: auto;
+
+  .slider-container {
+    width: 40px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    position: relative;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &:hover .slider-tip {
+      opacity: 1;
+    }
+
+    .slider-track {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+
+      .slider-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.3);
+        transition: height 0.1s ease;
+      }
+
+      .slider-handle {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        cursor: grab;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+          background: #fff;
+          transform: translateX(-50%) scale(1.1);
+        }
+
+        &:active {
+          cursor: grabbing;
+          transform: translateX(-50%) scale(0.95);
+        }
+      }
+    }
+
+    .slider-tip {
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-right: 10px;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
   }
 }
