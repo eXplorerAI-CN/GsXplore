@@ -302,6 +302,11 @@ onMounted(() => {
         
         <controller ref="refController" control-type="fly" :no-joystick="true" />
         <recorder ref="refRecorder" :show="showRecorder" /> 
+
+        <div class="copyright">
+            <p>Released under the MIT License.</p>
+            <p>Copyright © 2024-2025 ExplorerAI</p>
+        </div>
     </div>
 </template>
 
@@ -389,5 +394,25 @@ input[type="range"] {
 .menu-icon {
     font-size: 16px;
     color: inherit;
+}
+
+.copyright {
+    position: fixed;
+    bottom: 1rem;
+    right: 5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    text-align: right;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.copyright p {
+    margin: 0;
+    line-height: 1.4;
 }
 </style>

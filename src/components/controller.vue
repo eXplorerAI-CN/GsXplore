@@ -764,8 +764,8 @@ defineExpose({
   pointer-events: auto;
 
   .reset-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -892,8 +892,8 @@ defineExpose({
   pointer-events: auto;
 
   .toggle-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
