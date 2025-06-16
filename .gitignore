@@ -30,4 +30,4 @@ dist-ssr
 dict/
 
 /stats.html
-deploy.sh
+localsh/

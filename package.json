@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build2s": "./deploy.sh",
+    "build2s": "./localsh/deploy.sh",
+    "to3dpro": "./localsh/to3dpro.sh",
     "preview": "vite preview"
   },
   "dependencies": {

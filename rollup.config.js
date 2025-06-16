@@ -5,7 +5,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import terser from '@rollup/plugin-terser'
 
 export default {
-  input: 'src/viewer.mjs',
+  input: 'src/viewer.js',
   output: {
     file: 'dist/viewer.js',
     format: 'esm',
