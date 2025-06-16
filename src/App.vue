@@ -78,15 +78,24 @@ const saveScene = () => {
 
 const modelInput = ref(null);
 
+const loadingProgress = ref(0);
+const isLoading = ref(false);
+
 const loadModel = (event) => {
     if (event.target.files.length > 0) {
         console.log('loadModel')
+        isLoading.value = true;
+        loadingProgress.value = 0;
         const file = event.target.files[0];
         const url = URL.createObjectURL(file);
         viewer.loadModel(url, file.name).then(()=>{
             URL.revokeObjectURL(url);
+            isLoading.value = false;
         });
-        
+        viewer.events.on('load_progress', (event) => {
+            console.log('load_progress', event.percent)
+            loadingProgress.value = event.percent;
+        })
     }
 }
 const triggerLoadModel = () => {
@@ -307,6 +316,15 @@ onMounted(() => {
             <p>Released under the MIT License.</p>
             <p>Copyright © 2024-2025 ExplorerAI</p>
         </div>
+
+        <div v-if="isLoading" class="loading-overlay">
+            <div class="loading-container">
+                <div class="loading-progress">
+                    <div class="progress-bar" :style="{ width: `${loadingProgress}%` }"></div>
+                </div>
+                <div class="loading-text">{{ Math.round(loadingProgress) }}%</div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -412,5 +430,54 @@ input[type="range"] {
 .copyright p {
     margin: 0;
     line-height: 1.4;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+}
+
+.loading-container {
+    background: rgba(255, 255, 255, 0.98);
+    padding: 24px 32px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 1.5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #007aff;
+    border-radius: 1.5px;
+    transition: width 0.2s ease;
+}
+
+.loading-text {
+    font-size: 13px;
+    color: #1d1d1f;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 </style>

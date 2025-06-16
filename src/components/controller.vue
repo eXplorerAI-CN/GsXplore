@@ -133,10 +133,10 @@ function handleWheel(event) {
 
   // 调用 viewer.setOrbitCameraDistance 函数
   if(controlType.value === 'orbit'){
-    viewer.setOrbitCameraDistance(event.deltaY > 0 ? 1.02 : 0.98)
+    viewer.setOrbitCameraDistance(event.deltaY > 0 ? 1 + (0.04 * speed.value / 10 ): 1 - (0.04 * speed.value / 10))
   }
   else{
-    viewer.moveFlyCamera(0 , 0 , event.deltaY > 0 ? 10 : -10)
+    viewer.moveFlyCamera(0 , 0 , event.deltaY * speed.value / 100)
   }
 }
 
@@ -205,7 +205,6 @@ function updateMovement() {
     viewer.setOrbitCameraPivotVelocity(x/50, y/50, -z/50)
   }
   else{
-    console.log('执行移动', x, y, z)
     viewer.setFlyCameraVelocity(x, y, z)
   }
 }
@@ -407,10 +406,10 @@ function handlePointerMove(event) {
     else if (mouseDownButtonIndex === 2) {
       if(controlType.value === 'orbit'){
         // 鼠标平移（对应键盘平移是setOrbitCameraPivotVelocity方法）
-        viewer.moveOrbitCameraPivot(-movementX / 50, movementY / 50, 0)
+        viewer.moveOrbitCameraPivot(-movementX * speed.value / (50*50) , movementY * speed.value / (50*50), 0)
       }
       else{
-        viewer.moveFlyCamera(-movementX , movementY , 0)
+        viewer.moveFlyCamera(-movementX * speed.value / 50 , movementY * speed.value / 50 , 0)
       }
       hasMovedDuringInteraction = true
     }
@@ -436,7 +435,7 @@ function updateCameraAngle(movementX, movementY) {
     viewer.rotateOrbitCamera(-movementX / 5, -movementY / 5, 0)
   }
   else {
-    viewer.setFlyCameraEulerAngles(movementX / 5, -movementY / 5, 0)
+    viewer.setFlyCameraEulerAngles(movementX / 10, -movementY / 10, 0)
   }
 }
 
