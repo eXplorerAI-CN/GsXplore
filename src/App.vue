@@ -93,7 +93,7 @@ const loadModel = (event) => {
             isLoading.value = false;
         });
         viewer.events.on('load_progress', (event) => {
-            console.log('load_progress', event.percent)
+            // console.log('load_progress', event.percent)
             loadingProgress.value = event.percent;
         })
     }

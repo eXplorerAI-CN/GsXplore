@@ -28,6 +28,7 @@ import { init_mini_stats } from './utils/mini_stats';
 import {DistanceMeasure} from './utils/distance_measure'
 import { RectanglePlane } from './utils/rectangle_plane'
 import { plyParser } from './utils/ply_parser';
+import { fetchPlyWithStreamParsing } from './utils/fetch_with_progress';
 
 const scriptMapping = {
     'autoRotate': autoRotate
@@ -183,6 +184,19 @@ class Viewer{
             onProgress?.(percent, percentLabel);
         });
         return plyParser(arrayBuffer);
+    }
+
+    // 新增流式PLY解析方法
+    async plyStreamParser(url, onProgress, onVertexData) {
+        return fetchPlyWithStreamParsing(
+            url, 
+            (percent, percentLabel, chunk, fileSize, extraInfo) => {
+                onProgress?.(percent, percentLabel, extraInfo);
+            },
+            (vertexData, vertexIndex) => {
+                onVertexData?.(vertexData, vertexIndex);
+            }
+        );
     }
 
     set_params(params){
@@ -343,8 +357,16 @@ class Viewer{
                     };
                     this.events.fire('load_progress', msg);
                 }
-                entity_elements = await this.plyParser(url, onProgress);
-                entity_elements = entity_elements.data.elements;
+                // entity_elements = await this.plyParser(url, onProgress);
+                // entity_elements = entity_elements.data.elements;
+
+                const streamResult = await this.plyStreamParser(url, onProgress, (vertexData, vertexIndex) => {
+                    // 可以在这里实时处理每个顶点数据
+                    // console.log('vertexData', vertexData);
+                    // console.log('vertexIndex', vertexIndex);
+                }); 
+                console.log('流式解析结果:', streamResult);
+                entity_elements = streamResult.elements;
                 this.assets.gsplatElements[assetKey] = entity_elements;
                 console.log('-----------create new ply asset----------', url);
             }
@@ -352,8 +374,7 @@ class Viewer{
             entity.tags.add('gaussian');
             
             // Generate point cloud mesh for ply file
-            // const splatData = asset.resource.splatData;
-            // const pointCloudMeshInstance = pointCloudMesh(this.device, splatData, 10);
+            // const splatData = asset.resource.splailoudMesh(this.device, splatData, 10);
             // pointCloudMeshInstance.cull = false;
             
             // Create point cloud entity
