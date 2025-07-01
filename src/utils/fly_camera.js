@@ -1,7 +1,7 @@
 import * as pc from 'playcanvas';
 
 // Solution 1: Use matrix decomposition
-function convertToZeroZ(eulerAngles) {
+function convertToTargetZ(eulerAngles, targetZ = 0) {
     var quat = new pc.Quat();
     quat.setFromEulerAngles(eulerAngles.x, eulerAngles.y, eulerAngles.z);
     
@@ -22,9 +22,14 @@ function convertToZeroZ(eulerAngles) {
         newEuler.x = Math.atan2(forward.y, forwardLength) * pc.math.RAD_TO_DEG;
     }
     
-    newEuler.z = 0;
+    newEuler.z = targetZ;
     
     return newEuler;
+}
+
+// 为了向后兼容，保留原函数名
+function convertToZeroZ(eulerAngles) {
+    return convertToTargetZ(eulerAngles, 0);
 }
 
 function genFlyCameraScript() {
@@ -80,6 +85,7 @@ FlyCamera.prototype.initialize = function () {
     this.lockY = false;
     this.resetAfterMove = false;
     this.accumMoveFactor = new pc.Vec3(0,0,0);
+    this.targetZ = 0;
 
     if (this.entity.rigidbody) {
         this.entity.rigidbody.teleport(this.entity.getPosition(), this.entity.getRotation());
@@ -87,7 +93,8 @@ FlyCamera.prototype.initialize = function () {
 };
 
 FlyCamera.prototype.setEulerAngles = function (eulerAngles) {   
-    var newEulers = convertToZeroZ(eulerAngles);
+    // var newEulers = convertToZeroZ(eulerAngles);
+    var newEulers = convertToTargetZ(eulerAngles, this.targetZ);
     this.entity.setLocalEulerAngles(newEulers);
 
     // var eulers = this.entity.getLocalEulerAngles();

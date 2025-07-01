@@ -75,28 +75,23 @@ class RouteFly {
         const keyPoints = this.camera_marks.map(c => {
             return {
                 position: c.entity.getPosition(),
-                eulerAngles: c.entity.getEulerAngles(),
+                rotation: c.entity.getRotation().clone(),
                 fillCountFactor: c.fillCountFactor || 1
             }
         });
         let positions = keyPoints.map(p => p.position);
+        let rotations = keyPoints.map(p => p.rotation);
 
         this.clean_line();
         this.camera_marks.forEach(c => {
             c.entity.enabled = false;
         });
 
-        // Calculate lookat points for each key point
-        let lookAtPoints = keyPoints.map(p => {
-            return this.calculateLookAtFromEuler(p.position, p.eulerAngles);
-        });
-        
         // Calculate insertion counts for different nodes
         let fillCounts = keyPoints.map(p => p.fillCountFactor * fill_count);
 
         positions = catmull_rom_curve(positions, fillCounts, this.loop);
-        // Interpolate lookat points as well
-        lookAtPoints = catmull_rom_curve(lookAtPoints, fillCounts, this.loop);
+        rotations = this.quaternionCurveInterpolation(rotations, fillCounts, this.loop);
 
         let cursorIndex = 0
 
@@ -135,7 +130,7 @@ class RouteFly {
         const updateFunction = () => {
             if (cursorIndex < positions.length) {
                 this.camera.setPosition(positions[cursorIndex].x, positions[cursorIndex].y, positions[cursorIndex].z);
-                this.camera.lookAt(lookAtPoints[cursorIndex].x, lookAtPoints[cursorIndex].y, lookAtPoints[cursorIndex].z);
+                this.camera.setRotation(rotations[cursorIndex]);
 
                 if (this.screenshotScript) {
                     if (recordVideo && this.screenshotScript.isRecording) {
@@ -423,6 +418,37 @@ class RouteFly {
             this.camera_marks = [];
             this.clean_line();
         }
+    }
+
+    // 新增四元数插值方法
+    quaternionCurveInterpolation(quaternions, fillCounts, loop = false) {
+        if (quaternions.length < 2) return quaternions;
+        
+        const result = [];
+        
+        for (let i = 0; i < quaternions.length - 1; i++) {
+            const current = quaternions[i];
+            const next = quaternions[(i + 1) % quaternions.length];
+            const segments = fillCounts[i];
+            
+            // 添加当前点
+            result.push(current.clone());
+            
+            // 在当前点和下一个点之间插值
+            for (let j = 1; j < segments; j++) {
+                const t = j / segments;
+                const interpolated = new pc.Quat();
+                interpolated.slerp(current, next, t);
+                result.push(interpolated);
+            }
+        }
+        
+        // 添加最后一个点（除非是循环）
+        if (!loop) {
+            result.push(quaternions[quaternions.length - 1].clone());
+        }
+        
+        return result;
     }
 
 }
